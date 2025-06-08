@@ -1,0 +1,32 @@
+import bcrypt from 'bcrypt'
+import mongoose from 'mongoose'
+
+//Define como sera salvo os dados do usuario no MongoDB '
+let userSchema = new mongoose.Schema({
+    name: { type: String, required: true} ,
+    email: { type: String, required: true, unique:true },
+    password: { type: String, required: true,   },
+    role: { type: String, default: 'user' }, // 'admin' or 'user'
+    created_at: { type : Date, default: Date.now },
+    pdated_at: { type : Date, default: Date.now },}) 
+
+
+// pré-salvamento para fazer o hash da senha antes de salvar no banco de dados
+userSchema.pre('save', async function(next) {
+    if (this.isModified('password') || this.isNew ) { // Verifica se a senha foi modificada ou é nova
+        try {
+            const salt = await bcrypt.genSalt(10); // Gera um salt para o hash 'salt e um valor aleatório adicionado à senha antes de fazer o hash'
+            this.password = await bcrypt.hash(this.password, salt); // Faz o hash da senha   
+            next()
+        } catch (error) {
+        next( error as Error ); // Passa o erro para o próximo middleware
+    } 
+     }else {
+        next() // Se a senha não foi modificada, apenas chama o próximo middleware
+}
+ }) 
+ 
+ 
+
+export default mongoose.model('User', userSchema) // Exporta o modelo User para ser usado em outras partes do aplicativo
+

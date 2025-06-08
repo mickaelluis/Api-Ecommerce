@@ -5,7 +5,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import { Request, Response } from 'express';
 // Load env vars
 dotenv.config({ path: './.env'});
 
@@ -13,6 +12,8 @@ dotenv.config({ path: './.env'});
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Import routes
+import router from './auth/Auth.routes';
 /* Middleware
 declare global {
   namespace Express {
@@ -28,9 +29,7 @@ app.use(helmet());
 app.use(morgan('dev'));
 
 // Routes (a serem importadas)
-app.get('/', (req: Request, res: Response) => {
-  res.send('API OK');
-});
+app.use('/users', router);
 
 // Mongo Connection
 mongoose.connect(process.env.MONGO_URI || '', {
