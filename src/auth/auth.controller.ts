@@ -16,6 +16,15 @@ const register = async ( req: any, res: any ) => {
         }
 };
 
-const authController = {register} // Exporta o controller como um objeto com a função register
+const login = async (req: any, res: any) => {
+    try {
+        const result = await authService.login(req.body);
+        return res.status(result?.status).json(result?.data)        
+    } catch (error) {
+        return res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+}
+
+const authController = {register, login} // Exporta o controller como um objeto com a função register
  
 export default authController;   

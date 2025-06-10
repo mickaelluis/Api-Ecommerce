@@ -1,33 +1,59 @@
-import { string } from 'zod/v4';
 import User from '../models/user.model';
 require('dotenv').config();
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_TOKEN
+import { IUser } from '../models/user.model';
 //import isAutheticated from '../middlewares/isAuthenticated';
 
 
 const AuthService = {
     register: async (body: { name: string; email: string; password: string }) => {
-        if ( await User.findOne({ email: body.email })) { // Verifica se o email já está cadastrado
-            return { status: 400, message: 'Email já cadastrado' };
-        } else { // Se o email não estiver cadastrado, cria um novo usuário
-            const user = new User({
-                name: body.name,
-                email: body.email,
-                password: body.password
-            })  
-            return user.save()
-                .then((user) => {
-                    return { status: 201, data: user }; 
-                })
-                .catch((error) => { // Trata erros de validação ou outros erros do Mongoose
-                    if (error.name === 'ValidationError') {
-                        return { status: 400, message: error.message };
-                    } else {
-                        return { status: 500, message: 'Erro interno do servidor.' };
-                    }
-                });
-        }   
- }}
+       try {
+            // Validação simples dos dados de entrada
+            const existingUser= await User.findOne({ email: body.email });
+            if (existingUser) { 
+                return {
+                    status: 400,
+                    message: 'Usuário já existe.',
+                };
+            }
+            
+            const { name, email, password } = body;
+            const user = new User({ name, email, password });
+            const Token = await jwt.sign( {body: email}, secret, { expiresIn: '1d' });
+            const savedUser = await user.save();
+            // Gera um token JWT para o usuário registrado
+            return {
+                status: 201,
+                data: { 'Token': Token },
+            }; 
+            
+        } catch (error) {
+            console.error('Error registering user:', error); 
+            // Retorna um erro genérico em caso de falha
+            return {
+                status: 500,
+                message: 'Internal server error.',
+            };
+        } 
+    },
 
-export default AuthService;
+    login: async (body: {  email: string; password: string })=> {
+        try {
+            const user = await User.findOne({ email: body.email}) as IUser | null;
+            if (user && await user.comparePassword(body.password)){
+                return {
+                    status: 200,
+                    data:{ 'usuario conectado': user }
+                }
+            }
+           
+
+        } catch (error) {
+            
+        }
+        
+    }
+} 
+
+export default AuthService; 

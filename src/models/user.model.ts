@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
+import { Document } from 'mongoose';
 
 //Define como sera salvo os dados do usuario no MongoDB '
 let userSchema = new mongoose.Schema({
@@ -10,6 +11,15 @@ let userSchema = new mongoose.Schema({
     created_at: { type : Date, default: Date.now },
     pdated_at: { type : Date, default: Date.now },}) 
 
+
+//
+export interface IUser extends Document {
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+    comparePassword(password: string): Promise<boolean>;
+}
 
 // pré-salvamento para fazer o hash da senha antes de salvar no banco de dados
 userSchema.pre('save', async function(next) {
@@ -24,9 +34,13 @@ userSchema.pre('save', async function(next) {
      }else {
         next() // Se a senha não foi modificada, apenas chama o próximo middleware
 }
- }) 
- 
- 
+ }),
+
+userSchema.methods.comparePassword = async function ( password: any ): Promise<boolean> {
+    return await bcrypt.compare(password, this.password)
+};
+     
+
 
 export default mongoose.model('User', userSchema) // Exporta o modelo User para ser usado em outras partes do aplicativo
 
