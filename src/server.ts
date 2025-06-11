@@ -30,6 +30,7 @@ app.use(morgan('dev'));
 
 // Routes (a serem importadas)
 app.use('/users', router);
+app.use('/', router);
 
 // Mongo Connection
 mongoose.connect(process.env.MONGO_URI || '', {

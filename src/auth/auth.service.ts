@@ -3,7 +3,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_TOKEN
 import { IUser } from '../models/user.model';
-//import isAutheticated from '../middlewares/isAuthenticated';
+
 
 
 const AuthService = {
@@ -17,11 +17,10 @@ const AuthService = {
                     message: 'Usuário já existe.',
                 };
             }
-            
             const { name, email, password } = body;
             const user = new User({ name, email, password });
             const Token = await jwt.sign( {body: email}, secret, { expiresIn: '1d' });
-            const savedUser = await user.save();
+            await user.save();
             // Gera um token JWT para o usuário registrado
             return {
                 status: 201,
@@ -38,19 +37,23 @@ const AuthService = {
         } 
     },
 
-    login: async (body: {  email: string; password: string })=> {
+    login: async (body: {  email: string; password: string }) => {
         try {
             const user = await User.findOne({ email: body.email}) as IUser | null;
+            const Token = await jwt.sign( { email: body.email}, secret, { expiresIn: '1d' });
             if (user && await user.comparePassword(body.password)){
                 return {
                     status: 200,
-                    data:{ 'usuario conectado': user }
+                    data:{ Token }
                 }
             }
-           
-
         } catch (error) {
-            
+             console.error('Error registering user:', error); 
+            // Retorna um erro genérico em caso de falha
+            return {
+                status: 500,
+                message: 'Internal server error.',
+            };
         }
         
     }
