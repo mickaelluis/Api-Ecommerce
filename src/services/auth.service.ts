@@ -40,14 +40,19 @@ const AuthService = {
     login: async (body: {  email: string; password: string }) => {
         try {
             const user = await User.findOne({ email: body.email}) as IUser | null;
-            const Token = await jwt.sign( { email: body.email}, secret, { expiresIn: '1d' });
-            if (user && await user.comparePassword(body.password)){
-                return {
+            const token = await jwt.sign( { email: body.email}, secret, { expiresIn: '1d' });
+            if (user && await user.comparePassword(body.password)){ //valida se a senha e o mail sao validos 
+                return { // devolve o token no padrão Auth Type
                     status: 200,
-                    data:{ Token }
+                    Authorization: `Bearer ${token}` 
                 }
-            }
-        } catch (error) {
+            }else {// Retorna um erro em caso de senha ou email incorreto                 
+                    return {
+                        status: 401,
+                        message: 'E-mail ou senha incorretos.',
+                     }
+                }
+         } catch (error) {
              console.error('Error registering user:', error); 
             // Retorna um erro genérico em caso de falha
             return {

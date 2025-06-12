@@ -1,5 +1,4 @@
-import authService from './auth.service';
-import { Request, Response } from 'express';
+import authService from '../services/auth.service';
 
 
 // Defina o controller como um objeto
@@ -18,10 +17,14 @@ const register = async ( req: any, res: any ) => {
 
 const login = async (req: any, res: any) => {
     try {
-        const result = await authService.login(req.body);
-        return res.status(result?.status).json(result?.data)        
+            const result = await authService.login(req.body); //recebe os dados do cliente e guarda na constante rasult
+          if (result.Authorization){ 
+                return res.status(result?.status).json(result?.Authorization)  
+            }else {
+                return res.status(result.status).json({ message: result.message });
+        }             
     } catch (error) {
-        return res.status(500).json({ message: 'Erro interno do servidor.' });
+        return res.status(500).json({ message: 'Erro interno do servidor. ' });
     }
 }
 
