@@ -1,12 +1,12 @@
-// Exemplo de Estrutura:
-// src/models/product.model.ts: Schema do produto.
-// src/services/product.service.ts: Lógica de negócio.
-// src/controllers/product.controller.ts: Funções para cada rota.
-// produtos.ts: Definição das rotas.
+import { Router } from "express";
+import { ProductController } from "../controllers/product.controller";
 
-// Exemplos de Rotas Rest:
-// GET /produtos — Lista todos os produtos
-// GET /produtos/:id — Busca um produto por ID
-// POST /produtos — Cria um novo produto
-// PUT /produtos/:id — Atualiza um produto
-// DELETE /produtos/:id — Remove um produto
+const router = Router();
+
+router.get('/', ProductController.getAllProducts);
+router.get('/:id', ProductController.getProductById);
+router.post('/', ProductController.createProduct);
+router.put('/:id', ProductController.updateProduct);
+router.delete('/:id', ProductController.deleteProduct);
+
+export default router;
