@@ -7,7 +7,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
-    "dev": "nodemon src/server.ts",
+    "dev": "nodemon -e ts,json src/server.ts",
     "start": "ts-node src/server.ts"
   },
   "keywords": [],
@@ -30,6 +30,7 @@
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/mongoose": "^5.11.96",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.15.30",
     "eslint": "^9.28.0",
