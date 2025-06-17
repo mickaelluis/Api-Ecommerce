@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import { promises } from 'dns';
 import mongoose from 'mongoose'
 import { Document } from 'mongoose';
 
@@ -9,10 +10,11 @@ let userSchema = new mongoose.Schema({
     password: { type: String, required: true,   },
     role: { type: String, default: 'user' }, // 'admin' or 'user'
     created_at: { type : Date, default: Date.now },
-    pdated_at: { type : Date, default: Date.now },}) 
+    updated_at: { type : Date, default: Date.now },}) 
 
 
-//
+// Interface para o usuário, que estende o documento do Mongoose
+// Isso define a estrutura do documento do usuário no MongoDB e adiciona métodos para comparar senhas 
 export interface IUser extends Document {
     name: string;
     email: string;
@@ -40,7 +42,5 @@ userSchema.methods.comparePassword = async function ( password: any ): Promise<b
     return await bcrypt.compare(password, this.password)
 };
      
-
-
 export default mongoose.model('User', userSchema) // Exporta o modelo User para ser usado em outras partes do aplicativo
 
