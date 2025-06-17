@@ -25,7 +25,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
     }
 }
 
-// funçao apra validar se e um usuario comun ou um admin 
+// funçao para validar se e um usuario comun ou um admin 
 export async function VerificationRoles(req:Request, res: Response, next: NextFunction) { 
     const emailHeader = req.headers.email; // verifica se o email foi enviado no cabeçalho da requisição
     const user = await User.findOne({email: emailHeader}) // procura o usuario no banco de dados pelo email enviado no cabeçalho
