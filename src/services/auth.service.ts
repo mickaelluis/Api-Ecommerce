@@ -5,7 +5,6 @@ const secret = process.env.JWT_TOKEN
 import { IUser } from '../models/user.model';
 
 
-
 const AuthService = {
     register: async (body: { name: string; email: string; password: string }) => {
        try {
