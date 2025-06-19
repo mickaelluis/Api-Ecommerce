@@ -33,6 +33,5 @@ export async function VerificationRoles(req:Request, res: Response, next: NextFu
          res.status(401).json({ message: 'Não autorizado.' });
          return;
     }
-    res.status(200).json({ message: 'autorizado.' }); 
     next()
 }
