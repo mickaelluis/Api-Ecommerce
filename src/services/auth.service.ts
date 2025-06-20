@@ -3,7 +3,7 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_TOKEN
 import { IUser } from '../models/user.model';
-
+import  clientes, { IClients } from '../models/Clientes.model';
 
 const AuthService = {
     register: async (body: { name: string; email: string; password: string }) => {
@@ -20,10 +20,13 @@ const AuthService = {
             const user = new User({ name, email, password });
             const Token = await jwt.sign( {body: email}, secret, { expiresIn: '1d' });
             await user.save();
+            //console.log(user)
+            const userID = user.id
+            const novoCliente = await clientes.create({Clients: userID});
             // Gera um token JWT para o usuário registrado
             return {
                 status: 201,
-                data: { 'Token': Token },
+                data: { 'Token': Token, novoCliente }
             }; 
             
         } catch (error) {
