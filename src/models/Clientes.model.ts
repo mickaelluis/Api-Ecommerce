@@ -5,14 +5,22 @@ import Product from './product.model';
 
 export interface IClients extends Document {
         Clients: ObjectId;
-        CPF?: string;
-        telefone?: Number;
+        CPF?: String;
+        telefone?: { 
+             Number: String,
+             auth: String,
+     };
         Location?:[
             {
             District?: string;
-            Number?: number;
-            Street?: string;
-            cep?: number;
+            cep?: string;
+            logradouro?: string;
+            complemento?: string;
+            unidade?: string;
+            bairro?: string;
+            localidade?: string;
+            estado?: string;
+            regiao?: string;
             }
         ];
         Favorites?: [{
@@ -36,21 +44,28 @@ export interface IClients extends Document {
 }
 
 
-const ClientesSchema = new Schema<IClients>({
+const ClientsSchema = new Schema<IClients>({
     Clients: { type: Types.ObjectId, ref: User, required: true },
-    CPF: { type: String, default: '' },
-    telefone: { type: Number, required: true, default: 0 },
+    CPF: { type: String, default: 0 },
+    telefone: { 
+        Number: {type: String, required: true, default: 0},
+        auth: {type: String, required: true, default: 'false'},
+     },
     Location: [{
-             District: { type: String, required: true, default: '' },
-             Number: { type: Number, required: true, default: 0 },
-             Street: { type: String, required: true, default: '' },
-             cep: { type: Number, required: true, default: 0 },
+             cep:{ type: String, required: true, default: '' },
+             logradouro:{ type: String, required: true, default: '' },
+             complemento:{ type: String, required: true, default: '' },
+             unidade:{ type: String, required: true, default: '' },
+             bairro:{ type: String, required: true, default: '' },
+             localidade:{ type: String, required: true, default: '' },
+             estado:{ type: String, required: true, default: '' },
+             regiao:{ type: String, required: true, default: '' },
           }],
     Favorites: [{
-         Products: { type: Types.ObjectId, ref: Product, default: {} },
+         Products: { type: Types.ObjectId, ref: Product,required: true, default: {} },
     }],
     Shopping:[{
-        idProducts: { type: Types.ObjectId, ref: Product,default: {} },
+        idProducts: { type: Types.ObjectId, ref: Product,required: true, default: {} },
         Location:{
             District:{ type: String, required: true, default: ''},
             Number: {type: Number, required: true, default: 0},
@@ -66,4 +81,4 @@ const ClientesSchema = new Schema<IClients>({
     }]
 })
 
-export default mongoose.model('clientes', ClientesSchema)
+export default mongoose.model('Clients', ClientsSchema) 
