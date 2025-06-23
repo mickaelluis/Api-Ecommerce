@@ -14,7 +14,9 @@ const PORT = process.env.PORT || 3000;
 
 // Import routes
 import router from './auth/Auth.routes';
-import productRoutes from './produtos/Produtos'
+import productRoutes from './produtos/products'
+import categoryRoutes from './categorias/categories'
+
 /* Middleware
 declare global {
   namespace Express {
@@ -33,6 +35,7 @@ app.use(morgan('dev'));
 app.use('/users', router);
 app.use('/', router);
 app.use('/produtos', productRoutes);
+app.use('/categorias', categoryRoutes)
 
 // Mongo Connection
 mongoose.connect(process.env.MONGO_URI || '', {

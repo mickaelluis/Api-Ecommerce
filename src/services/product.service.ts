@@ -1,6 +1,3 @@
-// Métodos pra criar:
-// getAllProducts , getProductById --> clique, searchProducts, createProduct, updateProduct, deleteProduct
-
 import  Product, { IProduct } from '../models/product.model';
 
 const ProductService = {
@@ -48,7 +45,5 @@ const ProductService = {
     }
      
 }
-
-
 
 export default ProductService;

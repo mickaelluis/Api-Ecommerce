@@ -90,7 +90,7 @@ export const ProductController = {
         try {
             const deleteProduct = await ProductService.deleteProduct(req.params.id); // Envia ID para deletar
             if (deleteProduct) {
-                res.status(200).json({ message: 'Produlo deletado com sucesso.' }); // Confirma a exclusão
+                res.status(200).json({ message: 'Produto deletado com sucesso.' }); // Confirma a exclusão
                 return;
             } else {
                 res.status(404).json({ message: 'Produto não encontrado para ser deletado.' }); // Produto não existe
