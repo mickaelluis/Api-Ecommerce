@@ -1,9 +1,3 @@
-// getAllCategories(): Para buscar todas as categorias.
-// getCategoryById(id): Para buscar uma categoria específica.
-// createCategory(categoryData): Para criar uma nova categoria.
-// updateCategory(id, categoryData): Para atualizar uma categoria.
-// deleteCategory(id): Para deletar uma categoria.
-
 import Category, { ICategory } from "../models/category.model";
 
 const CategoryService = {
