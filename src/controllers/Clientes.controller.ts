@@ -68,6 +68,17 @@ const clienteController = {
             res.status(500).json({ message: 'Erro interno do servidor.' });
         }
     },
+
+    favoritos: async(req: Request, res:Response) => {
+        const {clienteId, produtoID} = req.body
+        try {
+             const resultado = await clientService.UpdateClientFavoritos(clienteId, produtoID)
+                res.status(200).json(resultado);
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({ message: 'Erro interno do servidor.' });
+        }
+    }
 }
 
  

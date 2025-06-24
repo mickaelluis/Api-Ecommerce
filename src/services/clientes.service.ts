@@ -4,6 +4,8 @@ import { cpf } from 'cpf-cnpj-validator';
 import { parsePhoneNumberFromString, CountryCode } from 'libphonenumber-js';
 import dotenv from 'dotenv';
 import twilio from 'twilio';
+import Product from '../models/product.model'
+
 dotenv.config({ path: './.env'});
 var buscaCep = require('busca-cep');
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -112,7 +114,8 @@ const clientService = {
             return { success: false, message: 'Código de verificação inválido.' };
      }
         } catch (error) {
-            
+            console.error("Erro ao adicionar telefone:", error);
+            throw new Error("Falha ao atualizar o cliente.");
         }
     },
 
@@ -136,10 +139,31 @@ const clientService = {
             }
             return { success: false, message: 'cep de verificação inválido.' };
         } catch (error) {
-            
+            console.error("Erro ao adicionar LOCALIZÇÂO:", error);
+            throw new Error("Falha ao atualizar o cliente.");
         } 
-    }
-}
+    },
 
+    UpdateClientFavoritos: async ( clienteID: ObjectId, produtoID: ObjectId) => {
+        const cliente = await clientes.findOne({ Clients: clienteID });
+        if (!cliente) {
+            return { success: false, message: "Cliente não encontrado!" };
+        }
+        const produto = await Product.findById(produtoID)
+        if (!produto) {
+            return  { seccess: false, menssage: "produto nao existe!" }
+        }
+        const jaExiste = cliente.Favorites?.some(fav => fav.Products?.Productid?.toString() === produto.id.toString());
+        if (jaExiste) {
+            return { success: false, message: "Produto já existe nos seus favoritos!" };
+        }
+        const filtro = {Clients: clienteID };
+        const favoritos ={ $push: {Favorites: [{Products: {Productid: produto.id,  name: produto.name,  
+                            description: produto.description,   price: produto.price,  imageUrl: produto.imageUrl} }]} }
+         const opcoes = { new: true};
+        await clientes.findOneAndUpdate(filtro, favoritos, opcoes)
+        return { success: true, message: ' Favorito adiconado com sucesso!' };
+    },
+}
 
 export default clientService;

@@ -2,6 +2,7 @@ import { strict } from 'assert';
 import mongoose, { Document, model, ObjectId, Schema, Types } from 'mongoose';
 import User from './user.model';
 import Product from './product.model';
+import { number } from 'zod';
 
 export interface IClients extends Document {
         Clients: ObjectId;
@@ -24,7 +25,13 @@ export interface IClients extends Document {
             }
         ];
         Favorites?: [{
-            Products?: any
+            Products?: {
+                Productid?: ObjectId, 
+                name?: String, 
+                description?: String, 
+                price?: number, 
+                imageUrl?:String, 
+            }
         }]
         Shopping?:[{
             idProducts?: string;
@@ -62,7 +69,14 @@ const ClientsSchema = new Schema<IClients>({
              regiao:{ type: String, required: true, default: '' },
           }],
     Favorites: [{
-         Products: { type: Types.ObjectId, ref: Product,required: true, default: {} },
+         _id: false,
+         Products: {  
+             Productid:[{ type: Types.ObjectId, required: true, default: null }],
+             name:{ type: String, required: true, default: '' },
+             description:{ type: String, required: true, default: '' },
+             price:{ type: Number, required: true, default: 0 },
+             imageUrl:{ type: String, required: true, default: '' },
+         },
     }],
     Shopping:[{
         idProducts: { type: Types.ObjectId, ref: Product,required: true, default: {} },
@@ -72,7 +86,7 @@ const ClientsSchema = new Schema<IClients>({
             Street: {type: String, required: true, default: ''},
             cep: {type: Number, required: true, default: 0 },
         },
-    PaymentMethod: {
+        PaymentMethod: {
         pix: {type: String, required: true , default: ''},
         boleto: {type: String, required: true, default: ''},
         cartaoCredito: {type: String, required: true, default: ''},
