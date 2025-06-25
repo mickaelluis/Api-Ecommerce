@@ -10,10 +10,9 @@ export interface IColorVariant {
   sizes: {
     size: 'P' | 'M' | 'G' | 'GG';
     stock: number;
+    price: number;
   }[];
 }
-
-
 
 // Interface que define os campos obrigatórios e opcionais de um produto
 // Estende Document para incluir os métodos e propriedades do mongoose
@@ -21,8 +20,7 @@ export interface IProduct extends Document {
     name: string;           // Nome do produto
     category: Types.ObjectId | ICategory; // Referenciando Categoria 
     description: string;    // Descrição do produto
-    price: number;          // Preço do produto 
-    colorVariants: IColorVariant[]; // Cor -> Tamanho -> Estoque --> Cada cor tem suas próprias URLs de imagens/video; 
+    colorVariants: IColorVariant[]; // Cor -> Tamanho -> Estoque - Preço --> Cada cor tem suas próprias URLs de imagens/video & Cada tamanho tem seu preço; 
     createdAt: Date;        // Data de criação (gerado automaticamente pelo mongoose)
     updatedAt: Date;        // Data de atualização (gerado automaticamente pelo mongoose)
 }
@@ -31,9 +29,7 @@ export interface IProduct extends Document {
 const productSchema = new Schema({
     name: { type: String, required: true },
     description: { type: String, required: true },
-    price: { type: Number, required: true },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
-
     colorVariants: [{
         _id: false,
         color: { type: String, required: true },
@@ -45,7 +41,8 @@ const productSchema = new Schema({
         sizes: [{
             _id: false,
             size: { type: String, required: true, enum: ['P', 'M', 'G', 'GG'] },
-            stock: { type: Number, required: true, min: 0, default: 0 }
+            stock: { type: Number, required: true, min: 0, default: 0 },
+            price: { type: Number, required: true },
         }]
     }]
 }, {

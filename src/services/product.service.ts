@@ -38,14 +38,13 @@ const ProductService = {
             }
         }
 
-        if (params.minPrice || params.maxPrice) { // Filtros de preço - min ou maximo
-            filter.price = {}; // Cria objeto price dentro do filtro
-
+        if (params.minPrice || params.maxPrice) { // Filtros do preço - min ou max
+            filter['colorVariants.sizes.price'] = {}; // Acessa todos os prices dentro de size
             if (params.minPrice) {
-                filter.price.$gte = params.minPrice; // Maior ou igual ao min
+                filter['colorVariants.sizes.price'].$gte = params.minPrice; // Maior ou igual ao min
             }
             if (params.maxPrice) {
-                filter.price.$lte = params.maxPrice; // Menor ou igual ao max
+                filter['colorVariants.sizes.price'].$lte = params.maxPrice; // Menor ou igual ao max
             }
         }
         // Realiza a busca no banco com os filtros montados e popula as categorias
