@@ -55,8 +55,8 @@ const ClientsSchema = new Schema<IClients>({
     Clients: { type: Types.ObjectId, ref: User, required: true },
     CPF: { type: String, default: 0 },
     telefone: { 
-        Number: {type: String, required: true, default: 0},
-        auth: {type: String, required: true, default: 'false'},
+        Number: {type: String, required: true, default: 0, unique: true},
+        auth: {type: String, required: true, default: 'false', unique: true},
      },
     Location: [{
              cep:{ type: String, required: true, default: '' },

@@ -33,9 +33,9 @@ const clienteController = {
     },
 
     INVerificacaoTelefone: async ( req: Request, res:Response) => {
-         const { telefone } = req.body;
+         const {  clienteId } = req.body;
           try {
-         const resultado = await clientService.iniciarVerificacaoTelefone(telefone);
+         const resultado = await clientService.iniciarVerificacaoTelefone(clienteId);
          res.status(200).json(resultado);
          } catch (error: any) {
             res.status(400).json({ message: error.message });
