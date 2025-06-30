@@ -44,7 +44,7 @@ export const ProductController = {
     createProduct: async (req: Request, res: Response): Promise<void> => {
         try {
             const newProduct = await ProductService.createProduct(req.body); // Usa o corpo da requisição para criar o produto
-            res.status(201).json(newProduct); // Produto criado com sucesso (201 Created)
+            res.status(201).json(newProduct); // Produto criado com successo (201 Created)
             return;
         } catch (error: any) {
             // Dados inválidos (ex: campos obrigatórios ausentes)
@@ -91,7 +91,7 @@ export const ProductController = {
         try {
             const deleteProduct = await ProductService.deleteProduct(req.params.id); // Envia ID para deletar
             if (deleteProduct) {
-                res.status(200).json({ message: 'Produto deletado com sucesso.' }); // Confirma a exclusão
+                res.status(200).json({ message: 'Produto deletado com successo.' }); // Confirma a exclusão
                 return;
             } else {
                 res.status(404).json({ message: 'Produto não encontrado para ser deletado.' }); // Produto não existe
@@ -118,7 +118,7 @@ export const ProductController = {
 
             if (invalidParams.length > 0) { // Se houver parâmetros inválidos, retorna erro 400
                 console.error("Parâmetros inválidos na busca:", invalidParams);
-                res.status(400).json({ message: "Parâmetros de busca inválidos detectados na URL."});
+                res.status(400).json({ message: "Parâmetros de busca inválidos detectados na URL." });
                 return;
             }
 
@@ -143,6 +143,29 @@ export const ProductController = {
             console.error("Erro ao pesquisar produto:", error.message);
             res.status(500).json({ message: 'Ocorreu um erro interno ao pesquisar produtos.' });
             return;
+        }
+    },
+
+    finalizePurchase: async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { productId, color, size, quantity } = req.body
+
+            if (!productId || !color || !size || !quantity) {
+                res.status(400).json({ message: 'Todos os campos são obrigatórios: productId, color, size, quantity.' });
+                return
+            }
+
+            const result = await ProductService.finalizePurchase(productId, color, size, quantity);
+
+            if(!result.success) { // Falha de negócio
+                res.status(409).json({ message: result.message });
+            }
+
+            res.status(200).json(result)
+            return
+        } catch (error) {
+            console.error("Erro ao decrementar estoque:", error);
+            res.status(500).json({ message: 'Ocorreu um erro interno ao decrementar estoque.'})
         }
     }
 };

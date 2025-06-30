@@ -10,5 +10,6 @@ router.get('/:id', ProductController.getProductById);
 router.post('/', isAuthenticated, VerificationRoles, ProductController.createProduct);
 router.put('/:id', isAuthenticated, VerificationRoles, ProductController.updateProduct);
 router.delete('/:id', isAuthenticated, VerificationRoles, ProductController.deleteProduct);
+router.post('/decrement', isAuthenticated, ProductController.finalizePurchase);
 
 export default router;
