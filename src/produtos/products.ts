@@ -14,5 +14,6 @@ router.delete('/:id', isAuthenticated, VerificationRoles, ProductController.dele
 // Rotas de estoque:
 router.post('/finalize', isAuthenticated, ProductController.finalizePurchase);
 router.post('/restock', isAuthenticated, VerificationRoles, ProductController.restock)
+router.post('/reserve', isAuthenticated, ProductController.reserveStock);
 
 export default router;

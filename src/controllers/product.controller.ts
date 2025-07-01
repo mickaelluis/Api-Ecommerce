@@ -146,7 +146,7 @@ export const ProductController = {
         }
     },
 
-// Controllers de ações de estoque:
+    // Controllers de ações de estoque:
 
     finalizePurchase: async (req: Request, res: Response): Promise<void> => {
         try {
@@ -159,7 +159,7 @@ export const ProductController = {
 
             const result = await ProductService.finalizePurchase(productId, color, size, quantity);
 
-            if(!result.success) { // Falha de negócio
+            if (!result.success) { // Falha de negócio
                 res.status(409).json({ message: result.message });
                 return;
             }
@@ -168,12 +168,12 @@ export const ProductController = {
             return;
         } catch (error) {
             console.error("Erro ao decrementar estoque:", error);
-            res.status(500).json({ message: 'Ocorreu um erro interno ao decrementar estoque.'});
+            res.status(500).json({ message: 'Ocorreu um erro interno ao decrementar estoque.' });
             return;
         }
     },
 
-     restock: async (req: Request, res: Response): Promise<void> => {
+    restock: async (req: Request, res: Response): Promise<void> => {
         try {
             const { productId, color, size, quantity } = req.body
 
@@ -184,7 +184,7 @@ export const ProductController = {
 
             const result = await ProductService.restock(productId, color, size, quantity);
 
-            if(!result.success) { // Falha de negócio
+            if (!result.success) { // Falha de negócio
                 res.status(409).json({ message: result.message });
                 return;
             }
@@ -193,9 +193,35 @@ export const ProductController = {
             return;
         } catch (error) {
             console.error("Erro ao adiconar estoque:", error);
-            res.status(500).json({ message: 'Ocorreu um erro interno ao adicionar estoque.'});
+            res.status(500).json({ message: 'Ocorreu um erro interno ao adicionar estoque.' });
             return;
         }
     },
-    
+
+
+    reserveStock: async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { productId, color, size, quantity } = req.body
+
+            if (!productId || !color || !size || !quantity) {
+                res.status(400).json({ message: 'Todos os campos são obrigatórios: productId, color, size, quantity.' });
+                return;
+            }
+
+            const result = await ProductService.reserveStock(productId, color, size, quantity);
+
+            if (!result.success) { // Falha de negócio
+                res.status(409).json({ message: result.message });
+                return;
+            }
+
+            res.status(200).json(result);
+            return;
+        } catch (error) {
+            console.error("Erro ao reservar estoque:", error);
+            res.status(500).json({ message: 'Ocorreu um erro interno ao reservar estoque.' });
+            return;
+        }
+    }
+
 };
