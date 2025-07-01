@@ -52,6 +52,8 @@ const ProductService = {
         return await Product.find(filter).populate<ICategory>('category', '_id name description');
     },
 
+// Métodos de estoque:
+
     finalizePurchase: async (
         productId: string,
         color: string,
@@ -76,13 +78,13 @@ const ProductService = {
                         }
                     }
                 },
-                {
+                { // Decrementa o estoque reservado.
                     $inc: {
                         __v: 1,
                         "colorVariants.$[color].sizes.$[size].stock.reserved": -quantity
                     }
                 },
-                {
+                { // Direciona a atualização para os subdocumentos corretos.
                     arrayFilters: [
                         { "color.color": color },
                         { "size.size": size }
@@ -90,7 +92,7 @@ const ProductService = {
                 }
             );
 
-            if (updateResult.modifiedCount === 0) {
+            if (updateResult.modifiedCount === 0) { // modifiedCount vem do updateOne
                 return { success: false, message: 'Reserva de estoque não encontrada para finalizar a compra.' }
             }
 
@@ -99,7 +101,56 @@ const ProductService = {
             console.error('Erro ao finalizar compra:', { error, productId, quantity });
             return { success: false, message: 'Erro interno ao finalizar a compra.' };
         }
-    }
+    },
+
+    restock: async (
+        productId: string,
+        color: string,
+        size: 'P' | 'M' | 'G' | 'GG',
+        quantity: number
+    ): Promise<{ success: boolean; message: string }> => {
+        if (quantity <= 0) {
+            return { success: false, message: 'Quantidade para repor deve ser um número positivo' };
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(productId)) { // Verifica a formatação do ID
+            return { success: false, message: 'ID de produto inválido' };
+        }
+
+        try {
+            const updateResult = await Product.updateOne(
+                {
+                    _id: productId,
+                    "colorVariants": {
+                        $elemMatch: {
+                            "sizes": { $elemMatch: { size: size, "stock.available": { $gte: quantity } } }
+                        }
+                    }
+                },
+                { // Incrementa o estoque DISPONÍVEL e a versão do documento.
+                    $inc: {
+                        __v: 1,
+                        "colorVariants.$[color].sizes.$[size].stock.available": quantity
+                    }
+                },
+                { // Direciona a atualização para os subdocumentos corretos.
+                    arrayFilters: [
+                        { "color.color": color },
+                        { "size.size": size }
+                    ]
+                }
+            );
+
+            if (updateResult.modifiedCount === 0) { // modifiedCount vem do updateOne
+                return { success: false, message: 'Produto não encontrado para adicionar ao estoque.' }
+            }
+
+            return { success: true, message: 'Estoque adicionado com sucesso.' }
+        } catch (error) {
+            console.error('Erro ao adicionar estoque:', { error, productId, quantity });
+            return { success: false, message: 'Erro interno ao adicionar estoque.' };
+        }
+    },
 
 }
 

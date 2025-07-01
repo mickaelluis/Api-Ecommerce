@@ -7,9 +7,12 @@ const router = Router();
 router.get('/', ProductController.getAllProducts);
 router.get('/search', ProductController.searchProducts);
 router.get('/:id', ProductController.getProductById);
+// Rotas ADMIN:
 router.post('/', isAuthenticated, VerificationRoles, ProductController.createProduct);
 router.put('/:id', isAuthenticated, VerificationRoles, ProductController.updateProduct);
 router.delete('/:id', isAuthenticated, VerificationRoles, ProductController.deleteProduct);
-router.post('/decrement', isAuthenticated, ProductController.finalizePurchase);
+// Rotas de estoque:
+router.post('/finalize', isAuthenticated, ProductController.finalizePurchase);
+router.post('/restock', isAuthenticated, VerificationRoles, ProductController.restock)
 
 export default router;
