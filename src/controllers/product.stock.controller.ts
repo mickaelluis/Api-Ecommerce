@@ -77,4 +77,29 @@ export const StockController = {
         }
     },
 
+    releaseReservedStock: async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { productId, color, size, quantity } = req.body
+
+            if (!productId || !color || !size || !quantity) {
+                res.status(400).json({ message: 'Todos os campos são obrigatórios: productId, color, size, quantity.' });
+                return;
+            }
+
+            const result = await StockService.releasedReservedStock(productId, color, size, quantity);
+
+            if (!result.success) { // Falha de negócio
+                res.status(409).json({ message: result.message });
+                return;
+            }
+
+            res.status(200).json(result);
+            return;
+        } catch (error) {
+            console.error("Erro ao reverter reserva de estoque:", error);
+            res.status(500).json({ message: 'Ocorreu um erro interno ao reverter reserva de estoque.' });
+            return;
+        }
+    },
+
 }

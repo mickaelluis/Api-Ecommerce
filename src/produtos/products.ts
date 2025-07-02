@@ -16,5 +16,6 @@ router.delete('/:id', isAuthenticated, VerificationRoles, ProductController.dele
 router.post('/:productId/stock/finalize', isAuthenticated, StockController.finalizePurchase);
 router.post('/:productId/stock/restock', isAuthenticated, VerificationRoles, StockController.restock)
 router.post('/:productId/stock/reserve', isAuthenticated, StockController.reserveStock);
+router.post('/:productId/stock/release', isAuthenticated, StockController.releaseReservedStock); 
 
 export default router;
