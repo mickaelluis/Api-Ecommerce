@@ -29,7 +29,7 @@ export interface IProduct extends Document {
 }
 
 // Define o schema do produto, mapeando os campos para o MongoDB
-const productSchema = new Schema({
+const productSchema = new Schema<IProduct>({
   name: { type: String, required: true },
   description: { type: String, required: true },
   category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
