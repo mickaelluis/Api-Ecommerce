@@ -15,9 +15,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Import routes
-import router from './auth/Auth.routes';
+import routerAuth from './auth/Auth.routes';
 import productRoutes from './produtos/products'
 import categoryRoutes from './categorias/categories'
+import clientesRoutes from './clientes/clientes.routes'
 
 /* Middleware
 declare global {
@@ -38,9 +39,10 @@ app.use(morgan('dev'));
 // }))
 
 // Routes (a serem importadas)
-app.use('/users', router);
-app.use('/', router);
+app.use('/users', routerAuth);
+app.use('/', routerAuth);
 app.use('/produtos', productRoutes);
+app.use('/clientes', clientesRoutes)
 app.use('/categorias', categoryRoutes)
 
 // Mongo Connection
