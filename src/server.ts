@@ -5,6 +5,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 // Load env vars
 dotenv.config({ path: './.env'});
 
@@ -30,6 +32,10 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
+
+// app.use(session({
+  
+// }))
 
 // Routes (a serem importadas)
 app.use('/users', router);
