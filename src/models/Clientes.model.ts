@@ -67,7 +67,7 @@ const ClientsSchema = new Schema<IClients>({
           }],
     Favorites: [{
              _id: false,
-             Productid:{ type: Types.ObjectId, required: true, default: null },
+             Productid:{ type: Types.ObjectId, ref: Product,required: true, default: null },
              name:{ type: String, required: true, default: '' },
              description:{ type: String, required: true, default: '' },
     }],

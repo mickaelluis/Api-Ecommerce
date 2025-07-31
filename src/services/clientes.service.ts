@@ -175,12 +175,11 @@ const clientService = {
 
             const opcoes = { new: true};
 
-            await clientes.findOneAndUpdate(filtro, autenticacao, opcoes);
-
+            const resultado = await clientes.findOneAndUpdate(filtro, autenticacao, opcoes);
             return { success: true, message: 'cep verificado com sucesso!' };
                 
             }
-            return { success: false, message: 'cep de verificação inválido.' };
+            return { success: false, message: 'cep inválido.' };
         } catch (error) {
             throw new Error("Falha ao atualizar o cliente.");
         } 
@@ -232,13 +231,18 @@ const clientService = {
         if (jaExiste) {
             return { success: false, message: "Produto já existe nos seus favoritos!" };
         }
-        const filtro = {Clients: clienteId };
-        const favoritos ={ $push: {Favorites: [{ Productid: produto.id,  name: produto.name,
-                                    description: produto.description,  }]} }                           
+         const filtro = { _id: clienteId };
+         const favoritos = { $push: { Favorites: { productId: produto.id, name: produto.name, description: produto.description } } };                       
          const opcoes = { new: true};
-         console.log(favoritos)
          const resultado = await clientes.findOneAndUpdate(filtro, favoritos, opcoes)
+         console.log(produto.id, produto.name, produto.description)
+         console.log(produto)      
+         console.log("aquiii", favoritos)
          console.log(resultado)
+         if (!resultado) {
+            // Se chegou aqui, o update falhou!
+            return { success: false, message: 'ERRO: Não foi possível atualizar o cliente. Verifique os dados.' };
+        }   
         return { success: true, message: ' Favorito adiconado com sucesso!' };
     },
 }
