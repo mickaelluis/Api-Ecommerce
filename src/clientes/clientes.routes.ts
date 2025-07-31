@@ -8,5 +8,7 @@ router.post('/AdicionarNumero', isAuthenticated, clienteController.adiconandoNum
 router.post('/iniciar-verificacao-telefone', isAuthenticated, clienteController.INVerificacaoTelefone );
 router.post('/confirmar-verificacao-telefone', isAuthenticated, clienteController.CONVerificacaoTelefone );
 router.post('/confirmar-verificacao-cep', isAuthenticated, clienteController.localizacao );
+router.put('/delete-cep', isAuthenticated, clienteController.deleteLocalizacao);
+router.get('/get-cep', isAuthenticated, clienteController.getLocalizacao);
 router.post('/favoritos', isAuthenticated, clienteController.favoritos );
 export default router;

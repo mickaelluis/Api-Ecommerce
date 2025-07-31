@@ -61,8 +61,31 @@ const clienteController = {
     localizacao: async ( req: Request, res:Response) => {
         const { clienteId, cep, logradouro, complemento, unidade, bairro, localidade, estado, regiao} = req.body;
         try {
-            const resultado = await clientService.updateClientLocalizacao(clienteId, cep, logradouro, complemento, unidade, bairro, localidade, estado, regiao  );
+            const resultado = await clientService.updateClientLocalizacao(clienteId, cep, logradouro, 
+             complemento, unidade, bairro, localidade, estado, regiao  );
              res.status(200).json(resultado);
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({ message: 'Erro interno do servidor.' });
+        }
+    },
+
+    getLocalizacao: async (req: Request, res: Response ) => {
+        const {clienteId} = req.body;
+        try {
+            const resultado = await clientService.getclientLocalizacao(clienteId);
+            res.status(200).json(resultado);
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({ message: 'Erro interno do servidor.' });
+        }
+    },
+
+    deleteLocalizacao: async (req: Request, res: Response) => {
+        const { clienteId, cep, logradouro, complemento, unidade, bairro, localidade, estado} = req.body;
+        try {
+            const resultado = await clientService.deleteClienteLocalzizacao(clienteId, cep, logradouro, complemento, unidade, bairro, localidade, estado)
+            res.status(200).json(resultado)
         } catch (error) {
             console.error(error)
             res.status(500).json({ message: 'Erro interno do servidor.' });

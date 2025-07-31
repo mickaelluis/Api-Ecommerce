@@ -24,14 +24,10 @@ export interface IClients extends Document {
             regiao?: string;
             }
         ];
-        Favorites?: [{
-            Products?: {
-                Productid?: ObjectId, 
-                name?: String, 
-                description?: String, 
-                price?: number, 
-                imageUrl?:String, 
-            }
+        Favorites?: [{     
+                productId: ObjectId ,
+                name:  String ,
+                description: String,
         }]
         Shopping?:[{
             idProducts?: string;
@@ -59,6 +55,7 @@ const ClientsSchema = new Schema<IClients>({
         auth: {type: String, required: true, default: 'false', unique: true},
      },
     Location: [{
+             _id: false,
              cep:{ type: String, required: true, default: '' },
              logradouro:{ type: String, required: true, default: '' },
              complemento:{ type: String, required: true, default: '' },
@@ -69,14 +66,10 @@ const ClientsSchema = new Schema<IClients>({
              regiao:{ type: String, required: true, default: '' },
           }],
     Favorites: [{
-         _id: false,
-         Products: {  
-             Productid:[{ type: Types.ObjectId, required: true, default: null }],
+             _id: false,
+             Productid:{ type: Types.ObjectId, required: true, default: null },
              name:{ type: String, required: true, default: '' },
              description:{ type: String, required: true, default: '' },
-             price:{ type: Number, required: true, default: 0 },
-             imageUrl:{ type: String, required: true, default: '' },
-         },
     }],
     Shopping:[{
         idProducts: { type: Types.ObjectId, ref: Product,required: true, default: {} },

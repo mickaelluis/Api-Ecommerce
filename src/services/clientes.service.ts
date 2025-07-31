@@ -170,7 +170,8 @@ const clientService = {
 
             const filtro = {Clients: clienteId };
 
-            const autenticacao = { $push: {Location: [{ cep: cep,logradouro: logradouro, complemento: complemento, unidade: unidade, bairro: bairro, localidade: localidade, estado: estado, regiao:regiao   }]}};
+            const autenticacao = { $push: {Location: [{ cep: cep,logradouro: logradouro, complemento: complemento, 
+            unidade: unidade, bairro: bairro, localidade: localidade, estado: estado, regiao:regiao   }]}};
 
             const opcoes = { new: true};
 
@@ -181,29 +182,63 @@ const clientService = {
             }
             return { success: false, message: 'cep de verificação inválido.' };
         } catch (error) {
-            console.error("Erro ao adicionar LOCALIZÇÂO:", error);
             throw new Error("Falha ao atualizar o cliente.");
         } 
     },
 
-    UpdateClientFavoritos: async ( clienteID: ObjectId, produtoID: ObjectId) => {
-        const cliente = await clientes.findOne({ Clients: clienteID });
+    getclientLocalizacao: async ( clienteid: ObjectId, ) => {
+        try {
+            const resultado = await clientes.findById(clienteid, {"Location": 1, "_id": 0} )
+             if (!resultado ) {
+                  return { success: false, message: "Cliente não encontrado" };
+             }
+            const { Location } = resultado 
+            return {success: true,  localizacao: Location }
+        } catch (error) {
+            throw new Error("Falha ao atualizar o cliente.");
+        }
+    },
+
+
+    deleteClienteLocalzizacao: async ( clienteId: ObjectId, cep:string, 
+        logradouro: string, complemento: string, unidade: string, 
+        bairro: string, localidade: string, estado: string, ) => {
+        try {
+            const filtro = {Clients: clienteId };
+            const deleteCep = {$pull: { Location: { cep: cep,logradouro: logradouro, complemento: complemento, 
+            unidade: unidade, bairro: bairro, localidade: localidade, estado: estado}}}
+            
+             const oloco = await clientes.updateOne(filtro, deleteCep) 
+            console.log(oloco)
+            if (oloco.modifiedCount == 0){return { success: true, message: 'Endereço na encontrado!' }} 
+            return { success: true, message: 'Endereço apagado com sucesso!' };   
+        } catch (error) {
+            console.log(error)
+             throw new Error("Falha ao atualizar o cliente.");
+        }
+    },
+
+    UpdateClientFavoritos: async ( clienteId: ObjectId, produtoID: ObjectId) => {
+        const cliente = await clientes.findById( clienteId );
         if (!cliente) {
+            console.log("eu to aqui caraiogigifgdofpkgp")
             return { success: false, message: "Cliente não encontrado!" };
         }
         const produto = await Product.findById(produtoID)
         if (!produto) {
             return  { seccess: false, menssage: "produto nao existe!" }
         }
-        const jaExiste = cliente.Favorites?.some(fav => fav.Products?.Productid?.toString() === produto.id.toString());
+        const jaExiste = cliente.Favorites?.some(fav => fav.productId?.toString() === produto.id.toString());
         if (jaExiste) {
             return { success: false, message: "Produto já existe nos seus favoritos!" };
         }
-        const filtro = {Clients: clienteID };
-        const favoritos ={ $push: {Favorites: [{Products: {Productid: produto.id,  name: produto.name,  
-                            description: produto.description,   price: produto.price,  imageUrl: produto.imageUrl} }]} }
+        const filtro = {Clients: clienteId };
+        const favoritos ={ $push: {Favorites: [{ Productid: produto.id,  name: produto.name,
+                                    description: produto.description,  }]} }                           
          const opcoes = { new: true};
-        await clientes.findOneAndUpdate(filtro, favoritos, opcoes)
+         console.log(favoritos)
+         const resultado = await clientes.findOneAndUpdate(filtro, favoritos, opcoes)
+         console.log(resultado)
         return { success: true, message: ' Favorito adiconado com sucesso!' };
     },
 }
