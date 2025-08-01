@@ -5,6 +5,7 @@ import { parsePhoneNumberFromString, CountryCode } from 'libphonenumber-js';
 import dotenv from 'dotenv';
 import twilio from 'twilio';
 import Product from '../models/product.model'
+import { strict } from 'assert';
 // Carrega as variáveis de ambiente do arquivo .env
 dotenv.config({ path: './.env'});
 var buscaCep = require('busca-cep');
@@ -220,25 +221,20 @@ const clientService = {
     UpdateClientFavoritos: async ( clienteId: ObjectId, produtoID: ObjectId) => {
         const cliente = await clientes.findById( clienteId );
         if (!cliente) {
-            console.log("eu to aqui caraiogigifgdofpkgp")
             return { success: false, message: "Cliente não encontrado!" };
         }
         const produto = await Product.findById(produtoID)
         if (!produto) {
             return  { seccess: false, menssage: "produto nao existe!" }
         }
-        const jaExiste = cliente.Favorites?.some(fav => fav.productId?.toString() === produto.id.toString());
-        if (jaExiste) {
-            return { success: false, message: "Produto já existe nos seus favoritos!" };
-        }
+        const jaExiste = cliente.Favorites?.some( Favorite  =>  Favorite.Productid?.toString() ===  produto.id )
+        if ( jaExiste  ) {
+                 return { success: false, message: "Produto já existe nos seus favoritos!" };
+                }
          const filtro = { _id: clienteId };
-         const favoritos = { $push: { Favorites: { productId: produto.id, name: produto.name, description: produto.description } } };                       
+         const favoritos = { $push: { Favorites: { Productid: produto.id, name: produto.name, description: produto.description } } };                       
          const opcoes = { new: true};
          const resultado = await clientes.findOneAndUpdate(filtro, favoritos, opcoes)
-         console.log(produto.id, produto.name, produto.description)
-         console.log(produto)      
-         console.log("aquiii", favoritos)
-         console.log(resultado)
          if (!resultado) {
             // Se chegou aqui, o update falhou!
             return { success: false, message: 'ERRO: Não foi possível atualizar o cliente. Verifique os dados.' };
