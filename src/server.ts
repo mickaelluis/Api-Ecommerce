@@ -5,8 +5,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
+
 // Load env vars
 dotenv.config({ path: './.env'});
 
@@ -16,9 +15,10 @@ const PORT = process.env.PORT || 3000;
 
 // Import routes
 import routerAuth from './auth/Auth.routes';
-import productRoutes from './produtos/products'
-import categoryRoutes from './categorias/categories'
-import clientesRoutes from './clientes/clientes.routes'
+import clientesRoutes from './clientes/clientes.routes';
+import productRoutes from './produtos/products';
+import categoryRoutes from './categorias/categories';
+import cartRoutes from './carrinho/cart';
 
 /* Middleware
 declare global {
@@ -34,16 +34,13 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 
-// app.use(session({
-  
-// }))
-
 // Routes (a serem importadas)
 app.use('/users', routerAuth);
 app.use('/', routerAuth);
 app.use('/produtos', productRoutes);
-app.use('/clientes', clientesRoutes)
-app.use('/categorias', categoryRoutes)
+app.use('/clientes', clientesRoutes);
+app.use('/categorias', categoryRoutes);
+app.use('/carrinho', cartRoutes);
 
 // Mongo Connection
 mongoose.connect(process.env.MONGO_URI || '', {

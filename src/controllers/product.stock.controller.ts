@@ -86,7 +86,7 @@ export const StockController = {
                 return;
             }
 
-            const result = await StockService.releasedReservedStock(productId, color, size, quantity);
+            const result = await StockService.releaseReservedStock(productId, color, size, quantity);
 
             if (!result.success) { // Falha de negócio
                 res.status(409).json({ message: result.message });
