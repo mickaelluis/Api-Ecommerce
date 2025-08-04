@@ -18,11 +18,11 @@ const AuthService = {
             }
             const { name, email, password } = body;
             const user = new User({ name, email, password });
-            const Token = await jwt.sign( {body: email}, secret, { expiresIn: '1d' });
+            const tokenPayload = { id: user.id, email: user.email, role: user.role };
+            const Token = await jwt.sign(tokenPayload, secret, { expiresIn: '1d' });
             await user.save();
             //console.log(user)
-            const userID = user.id
-            const novoCliente = await clientes.create({Clients: userID});
+            const novoCliente = await clientes.create({Clients: user.id});
             // Gera um token JWT para o usuário registrado
             return {
                 status: 201,
@@ -42,8 +42,9 @@ const AuthService = {
     login: async (body: {  email: string; password: string }) => {
         try {
             const user = await User.findOne({ email: body.email}) as IUser | null;
-            const token = await jwt.sign( { email: body.email}, secret, { expiresIn: '1d' });
             if (user && await user.comparePassword(body.password)){ //valida se a senha e o mail sao validos 
+                const tokenPayload = { id: user.id, email: user.email, role: user.role };
+                const token = await jwt.sign(tokenPayload, secret, { expiresIn: '1d' });
                 return { // devolve o token no padrão Auth Type
                     status: 200,
                     Authorization: `Bearer ${token}` 

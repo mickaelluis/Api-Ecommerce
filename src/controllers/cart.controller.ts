@@ -4,14 +4,14 @@ import mongoose from "mongoose";
 
 interface AuthenticatedRequest extends Request {
     user?: {
-        _id: string;
+        id: string;
     }
 }
 
 export const CartController = {
     getCartByUserId: async (req: AuthenticatedRequest, res: Response): Promise<void> => {
         try {
-            const userId = req.user?._id; // Pega o ID do usuário logado
+            const userId = req.user?.id; // Pega o ID do usuário logado
 
             // Valida se o usuário está autenticado
             if (!userId) {
@@ -33,7 +33,7 @@ export const CartController = {
 
     upsertItem: async (req: AuthenticatedRequest, res: Response): Promise<void> => {
         try {
-            const userId = req.user?._id;
+            const userId = req.user?.id;
 
             // Valida se o usuário está autenticado
             if (!userId) {

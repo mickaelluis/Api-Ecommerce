@@ -5,6 +5,6 @@ import { isAuthenticated, VerificationRoles } from "../middlewares/isAuthenticat
 const router = Router();
 
 router.get('/', isAuthenticated, CartController.getCartByUserId)
-router.post('/items', CartController.upsertItem)
+router.post('/items', isAuthenticated, CartController.upsertItem)
 
 export default router
