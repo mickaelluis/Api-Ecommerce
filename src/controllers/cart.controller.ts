@@ -37,7 +37,7 @@ export const CartController = {
 
             // Valida se o usuário está autenticado
             if (!userId) {
-                res.status(401).json({ message: "Não autorizado." } );
+                res.status(401).json({ message: "Não autorizado." });
                 return;
             }
 
@@ -64,4 +64,32 @@ export const CartController = {
             res.status(500).json({ message: "Erro interno no servidor." });
         }
     },
+
+    removeItem: async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+        try {
+            const userId = req.user?.id
+            if (!userId) {
+                res.status(401).json({ message: "Não autorizado." });
+                return;
+            }
+
+            const { productId, color, size } = req.body;
+            if (!productId || !color || !size) {
+                res.status(400).json({ message: "Dados do item para remoção incompletos." });
+                return;
+            }
+
+            const result = await CartService.removeItem(userId, req.body);
+
+            if (result.success) {
+                res.status(200).json(result);
+                return;
+            } else {
+                res.status(404).json({ message: 'Item não encontrado' })
+            }
+        } catch (error) {
+            console.error("Erro ao remover item do carrinho:", error);
+            res.status(500).json({ message: "Erro interno no servidor." });
+        }
+    }
 }

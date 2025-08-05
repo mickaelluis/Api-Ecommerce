@@ -16,9 +16,9 @@ const CartService = {
             };
             // Procura o índice do item no carrinho pra saber se ele existe
             const existingItemIndex = cart.items.findIndex(item => {
-                item.productId.toString() === itemData.productId.toString() &&
-                item.color === itemData.color &&
-                item.size === itemData.size
+                return item.productId.toString() === itemData.productId.toString() &&
+                    item.color === itemData.color &&
+                    item.size === itemData.size
             });
             // Se existe, atualiza a quantidade
             if (existingItemIndex > -1) {
@@ -34,12 +34,43 @@ const CartService = {
             }
 
             const updatedCart = await cart.save()
-            return { success: true, message: "Carrinho atualizado com sucesso.", data: updatedCart}
+            return { success: true, message: "Carrinho atualizado com sucesso.", data: updatedCart }
         } catch (error) {
-            console.error('Erro ao atualizar carrinho do usupário.', error);
-            return { success: false, message: `Erro interno ao atualizar carrinho.`}
+            console.error('Erro ao atualizar carrinho do usuário:', error);
+            return { success: false, message: `Erro interno ao atualizar carrinho.` }
+        }
+    },
+
+    removeItem: async (userId: string, itemToRemove: Omit<ICartItem, 'quantity'>): Promise<{ success: boolean, message: string, data?: ICart }> => {
+        try {
+            let cart = await Cart.findOne({ userId: userId });
+
+            if (!cart) { // Se não houver carrinho, não tem nada para remover
+                return { success: false, message: 'Carrinho não encontrado.' }
+            };
+            // Guarda o número de itens antes da remoção
+            const initialItemCount = cart.items.length;
+            // Filtra o array de itens, mantendo apenas aqueles que NÃO correspondem ao item a ser removido
+            cart.items = cart.items.filter(item =>
+                !(
+                    item.productId.toString() === itemToRemove.productId.toString() &&
+                    item.color === itemToRemove.color &&
+                    item.size === itemToRemove.size
+                )
+            );
+            // Verifica se realmente foi removido
+            if (cart.items.length === initialItemCount) {
+                return { success: false, message: "Item não encontrado no carrinho." };
+            }
+
+            const updatedCart = await cart.save();
+            return { success: true, message: "Item removido com sucesso", data: updatedCart }
+        } catch (error) {
+            console.error('Erro ao remover item do carrinho:', error)
+            return { success: false, message: 'Erro interno ao remover item.' };
         }
     }
+
 }
 
 export default CartService;
