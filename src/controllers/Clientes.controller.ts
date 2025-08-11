@@ -1,3 +1,4 @@
+import { any } from 'zod';
 import clientService from '../services/clientes.service'
 import { Request, Response } from "express";
 // Controlador para gerenciar clientes
@@ -97,6 +98,21 @@ const clienteController = {
         try {
              const resultado = await clientService.UpdateClientFavoritos(clienteId, produtoID)
                 res.status(200).json(resultado);
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({ message: 'Erro interno do servidor.' });
+        }
+    },
+
+    GetFavoritos: async(req: Request, res:Response) => {
+        const {ClienteId}= req.body
+        try {
+            const resultado = await clientService.GetClienteFavoritos(ClienteId)
+            console.log(resultado.status)
+           if (resultado.data) {
+                res.status(resultado.status).json(resultado.data);
+            }
+            res.status(resultado.status).json({ message: resultado.message });
         } catch (error) {
             console.error(error)
             res.status(500).json({ message: 'Erro interno do servidor.' });

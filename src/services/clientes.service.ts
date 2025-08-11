@@ -35,7 +35,7 @@ const clientService = {
             const clienteEncontrado = await clientes.findOne(filtroCPF);
             // Se já existir, retorna uma mensagem de erro
             if (clienteEncontrado) { 
-            return  { error:  409, success: false, message: `Resultado: ${novoCPF} já cadastrado.` };
+            return  { error:  409, success: false, message: `Resultado:  não e  possivel cadastra esse cpf.` };
             }
             // 1. Critério de busca: Encontrar o cliente pelo seu _id
             const filtro = {Clients: clienteId };
@@ -230,9 +230,9 @@ const clientService = {
         const jaExiste = cliente.Favorites?.some( Favorite  =>  Favorite.Productid?.toString() ===  produto.id )
         if ( jaExiste  ) {
                  return { success: false, message: "Produto já existe nos seus favoritos!" };
-                }
+                } 
          const filtro = { _id: clienteId };
-         const favoritos = { $push: { Favorites: { Productid: produto.id, name: produto.name, description: produto.description } } };                       
+         const favoritos = { $addToSet: { Favorites: { Productid: produto.id } } };                       
          const opcoes = { new: true};
          const resultado = await clientes.findOneAndUpdate(filtro, favoritos, opcoes)
          if (!resultado) {
@@ -241,6 +241,18 @@ const clientService = {
         }   
         return { success: true, message: ' Favorito adiconado com sucesso!' };
     },
+
+    GetClienteFavoritos: async ( ClienteId: ObjectId) => {
+        const cliente = await clientes.findById(ClienteId).populate('Favorites.Productid');;
+        if (!cliente){
+            return { success: false, message: "Cliente não encontrado!" };
+        }
+        if ( !cliente.Favorites  ) {
+            return { status: 201, data: [] };
+        }
+        return { status: 200, data: cliente.Favorites };
+    },
 }
+
 
 export default clientService;

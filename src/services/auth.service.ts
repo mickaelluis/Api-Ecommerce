@@ -18,15 +18,16 @@ const AuthService = {
             }
             const { name, email, password } = body;
             const user = new User({ name, email, password });
-            const Token = await jwt.sign( {body: email}, secret, { expiresIn: '1d' });
             await user.save();
+            const Token = await jwt.sign( {body: email}, secret, { expiresIn: '1d' });
             //console.log(user)
             const userID = user.id
             const novoCliente = await clientes.create({Clients: userID});
+            console.log(novoCliente)
             // Gera um token JWT para o usuário registrado
             return {
                 status: 201,
-                data: { 'Token': Token, novoCliente }
+                data: { 'Token': Token}
             }; 
             
         } catch (error) {

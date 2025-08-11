@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 // Import routes
 import routerAuth from './auth/Auth.routes';
 import productRoutes from './produtos/Produtos'
-import clientesRoutes from './clientes/clientes.routes'
+import clientesRoutes from '../src/routes/clientes.routes'
 /* Middleware
 declare global {
   namespace Express {

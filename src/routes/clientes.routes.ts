@@ -11,4 +11,5 @@ router.post('/confirmar-verificacao-cep', isAuthenticated, clienteController.loc
 router.put('/delete-cep', isAuthenticated, clienteController.deleteLocalizacao);
 router.get('/get-cep', isAuthenticated, clienteController.getLocalizacao);
 router.post('/favoritos', isAuthenticated, clienteController.favoritos );
+router.get('/favoritos', isAuthenticated, clienteController.GetFavoritos );
 export default router;
