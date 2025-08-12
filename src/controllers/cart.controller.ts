@@ -52,7 +52,7 @@ export const CartController = {
 
             const { productId, color, size } = req.body;
             if (!productId || !color || !size) {
-                res.status(400).json({ message: "Dados do item para remoção incompletos." });
+                res.status(400).json({ message: "Dados do item inválidos ou incompletos." });
                 return;
             }
 
@@ -61,6 +61,44 @@ export const CartController = {
             res.status(result.statusCode).json(result);
         } catch (error) {
             console.error("Erro ao remover item do carrinho:", error);
+            res.status(500).json({ message: "Erro interno no servidor." });
+        }
+    },
+
+    incrementItem: async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+        try {
+            const userId = req.user!.id
+
+            const { productId, color, size } = req.body;
+            if (!productId || !color || !size) {
+                res.status(400).json({ message: "Dados do item inválidos ou incompletos." });
+                return;
+            }
+
+            const result = await CartService.incrementItem(userId, { productId, color, size });
+
+            res.status(result.statusCode).json(result);
+        } catch (error) {
+            console.error("Erro ao incrementar item do carrinho:", error);
+            res.status(500).json({ message: "Erro interno no servidor." });
+        }
+    },
+
+    decrementItem: async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+        try {
+            const userId = req.user!.id
+
+            const { productId, color, size } = req.body;
+            if (!productId || !color || !size) {
+                res.status(400).json({ message: "Dados do item inválidos ou incompletos." });
+                return;
+            }
+
+            const result = await CartService.decrementItem(userId, { productId, color, size });
+
+            res.status(result.statusCode).json(result);
+        } catch (error) {
+            console.error("Erro ao decrementar item do carrinho:", error);
             res.status(500).json({ message: "Erro interno no servidor." });
         }
     }
