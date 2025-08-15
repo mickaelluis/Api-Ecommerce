@@ -6,9 +6,9 @@ import dotenv from 'dotenv';
 import twilio from 'twilio';
 import Product from '../models/product.model'
 import { strict } from 'assert';
+const axios = require("axios");
 // Carrega as variáveis de ambiente do arquivo .env
 dotenv.config({ path: './.env'});
-var buscaCep = require('busca-cep');
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const verifySid = process.env.TWILIO_VERIFY_SID;
@@ -70,7 +70,7 @@ const clientService = {
          // Formata o número para o padrão E.164
          const numeroEmFormatoInternacional = telefone.format('E.164') 
          // 1. Critério de busca: Encontrar o cliente pelo seu _id
-         const filtro = {Clients: clienteId };
+         const filtro = {userid: clienteId };
          // Usamos o operador '$set' para garantir que apenas o campo telefone será alterado.
          const autenticacao = { $set: {telefone: [{ Number: numeroEmFormatoInternacional, auth: 'false' }]}};
          // Define as opções para a atualização, true faz com que ele retorne o documento DEPOIS da atualização.
@@ -92,7 +92,7 @@ const clientService = {
     // metodo para iniciar a verificação do telefone
     iniciarVerificacaoTelefone: async (clienteId: ObjectId) => { 
         try {
-            const filtro = {Clients: clienteId}
+            const filtro = {userid: clienteId}
             const resultadoDaBusca = await clientes.findOne(filtro, 'telefone.Number -_id');
             let numeroDoTelefone; // Variável para guardar o número final
              // Verificamos se a busca retornou algo e se o array 'telefone' não está vazio
@@ -123,7 +123,7 @@ const clientService = {
     //metodo para confirmar o codigo de verificação do telefone
     confirmarCodigoTelefone: async (clienteId: ObjectId,numeroTelefone: string, codigo: string) => { 
         try { 
-            const filtro = {Clients: clienteId}
+            const filtro = {userid: clienteId}
             const resultadoDaBusca = await clientes.findOne(filtro, 'telefone.Number -_id');
             let numeroDoTelefone; // Variável para guardar o número final
              // Verificamos se a busca retornou algo e se o array 'telefone' não está vazio
@@ -141,7 +141,7 @@ const clientService = {
              // Verifica o status da verificação se o rota devolver 'approved' significa que o código foi verificado com sucesso
             if (verificationCheck.status === 'approved') {
              // Filtro para encontrar o cliente pelo ID
-            const filtro = {Clients: clienteId }; 
+            const filtro = {userid: clienteId }; 
             // Atualiza o cliente com o número de telefone verificado 
             // Usamos o operador '$set' para garantir que apenas o campo telefone será alterado.
             const autenticacao = { $set: {telefone: [{ Number: numeroTelefone, auth: 'true' }]}}; 
@@ -166,10 +166,27 @@ const clientService = {
         complemento: string, unidade: string, 
         bairro: string, localidade: string, estado: string, regiao: string ) => {
         try {
-            var resposta = buscaCep(`${cep}`, {sync: true});
-            if ( resposta.localidade == localidade  && resposta.estado == estado  && resposta.regiao == regiao ) {
+        const clienteExiste =  await clientes.findById(clienteId)
+        if( !clienteExiste ) {
+            return { status: 404, message: "Cliente não encontrado!", };
+        }
+            // Limpa caracteres não numéricos do CEP
+        const cepLimpo = cep.replace(/\D/g, "");
 
-            const filtro = {Clients: clienteId };
+     // Faz a requisição para a API pública ViaCEP
+         const { data: resposta } = await axios.get(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+    // Verifica se o CEP é válido
+    if (resposta.erro) {
+      return {  status: 404, message: "CEP inválido!!." };
+    }
+
+    // Validação da localização
+    if (
+      resposta.localidade === localidade &&
+      resposta.estado === estado && // ViaCEP usa 'uf' no lugar de 'estado'
+      resposta.regiao === regiao // ViaCEP não retorna 'regiao', pode precisar ajustar
+    ) {
+            const filtro = { _id: clienteId };
 
             const autenticacao = { $push: {Location: [{ cep: cep,logradouro: logradouro, complemento: complemento, 
             unidade: unidade, bairro: bairro, localidade: localidade, estado: estado, regiao:regiao   }]}};
@@ -177,10 +194,11 @@ const clientService = {
             const opcoes = { new: true};
 
             const resultado = await clientes.findOneAndUpdate(filtro, autenticacao, opcoes);
-            return { success: true, message: 'cep verificado com sucesso!' };
-                
-            }
-            return { success: false, message: 'cep inválido.' };
+
+            return {  status: 201, data: resultado };
+    }
+
+    return { status: 400, message: "CEP inválido." };
         } catch (error) {
             throw new Error("Falha ao atualizar o cliente.");
         } 
@@ -190,10 +208,9 @@ const clientService = {
         try {
             const resultado = await clientes.findById(clienteid, {"Location": 1, "_id": 0} )
              if (!resultado ) {
-                  return { success: false, message: "Cliente não encontrado" };
+                  return { status: 404, message: "Cliente não encontrado" };
              }
-            const { Location } = resultado 
-            return {success: true,  localizacao: Location }
+            return { status: 201,  data: resultado.Location }
         } catch (error) {
             throw new Error("Falha ao atualizar o cliente.");
         }
@@ -204,14 +221,18 @@ const clientService = {
         logradouro: string, complemento: string, unidade: string, 
         bairro: string, localidade: string, estado: string, ) => {
         try {
-            const filtro = {Clients: clienteId };
+            const cliente = await clientes.findById( clienteId );
+            if (!cliente) {
+            return { status: 404, message: "Cliente não encontrado!", };
+             }
+            const filtro = {userid: clienteId };
             const deleteCep = {$pull: { Location: { cep: cep,logradouro: logradouro, complemento: complemento, 
             unidade: unidade, bairro: bairro, localidade: localidade, estado: estado}}}
-            
-             const oloco = await clientes.updateOne(filtro, deleteCep) 
-            console.log(oloco)
-            if (oloco.modifiedCount == 0){return { success: true, message: 'Endereço na encontrado!' }} 
-            return { success: true, message: 'Endereço apagado com sucesso!' };   
+            const clienteModificado = await clientes.updateOne(filtro, deleteCep) 
+            if (clienteModificado.modifiedCount == 0){
+               return { status: 404, message: "Localizaçao não encontrado!", };
+            } 
+            return { status: 201, data: clienteModificado };   
         } catch (error) {
             console.log(error)
              throw new Error("Falha ao atualizar o cliente.");
@@ -221,15 +242,15 @@ const clientService = {
     UpdateClientFavoritos: async ( clienteId: ObjectId, produtoID: ObjectId) => {
         const cliente = await clientes.findById( clienteId );
         if (!cliente) {
-            return { success: false, message: "Cliente não encontrado!" };
+            return { status: 404, message: "Cliente não encontrado!", };
         }
         const produto = await Product.findById(produtoID)
         if (!produto) {
-            return  { seccess: false, menssage: "produto nao existe!" }
+            return  { status: 404, message: "produto nao existe!", }
         }
         const jaExiste = cliente.Favorites?.some( Favorite  =>  Favorite.Productid?.toString() ===  produto.id )
-        if ( jaExiste  ) {
-                 return { success: false, message: "Produto já existe nos seus favoritos!" };
+        if ( jaExiste ) {
+                 return { status: 409, message: "Produto já existe nos seus favoritos!" };
                 } 
          const filtro = { _id: clienteId };
          const favoritos = { $addToSet: { Favorites: { Productid: produto.id } } };                       
@@ -237,20 +258,18 @@ const clientService = {
          const resultado = await clientes.findOneAndUpdate(filtro, favoritos, opcoes)
          if (!resultado) {
             // Se chegou aqui, o update falhou!
-            return { success: false, message: 'ERRO: Não foi possível atualizar o cliente. Verifique os dados.' };
-        }   
-        return { success: true, message: ' Favorito adiconado com sucesso!' };
+            return { status: 400, message: 'ERRO: Não foi possível atualizar o cliente. Verifique os dados.' };
+        }
+        return { status: 200, data: resultado };
     },
 
     GetClienteFavoritos: async ( ClienteId: ObjectId) => {
         const cliente = await clientes.findById(ClienteId).populate('Favorites.Productid');;
+        console.log(cliente)
         if (!cliente){
-            return { success: false, message: "Cliente não encontrado!" };
+            return { status: 404, message: "Cliente não encontrado!", };
         }
-        if ( !cliente.Favorites  ) {
-            return { status: 201, data: [] };
-        }
-        return { status: 200, data: cliente.Favorites };
+        return { status: 200, data: cliente.Favorites};
     },
 }
 

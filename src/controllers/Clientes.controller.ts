@@ -64,7 +64,15 @@ const clienteController = {
         try {
             const resultado = await clientService.updateClientLocalizacao(clienteId, cep, logradouro, 
              complemento, unidade, bairro, localidade, estado, regiao  );
-             res.status(200).json(resultado);
+             if ( resultado.status == 404) {
+                res.status(resultado.status).json(resultado.message)
+            }
+             if ( resultado.status == 400 ) {
+                res.status(resultado.status).json(resultado.message)
+            }
+             if ( resultado.status == 201) {
+                res.status(resultado.status).json(resultado.data)
+            }
         } catch (error) {
             console.error(error)
             res.status(500).json({ message: 'Erro interno do servidor.' });
@@ -75,7 +83,12 @@ const clienteController = {
         const {clienteId} = req.body;
         try {
             const resultado = await clientService.getclientLocalizacao(clienteId);
-            res.status(200).json(resultado);
+            if ( resultado.status == 404) {
+                res.status(resultado.status).json(resultado.message)
+            }
+             if ( resultado.status == 201) {
+                res.status(resultado.status).json(resultado.data)
+            }
         } catch (error) {
             console.error(error)
             res.status(500).json({ message: 'Erro interno do servidor.' });
@@ -86,7 +99,12 @@ const clienteController = {
         const { clienteId, cep, logradouro, complemento, unidade, bairro, localidade, estado} = req.body;
         try {
             const resultado = await clientService.deleteClienteLocalzizacao(clienteId, cep, logradouro, complemento, unidade, bairro, localidade, estado)
-            res.status(200).json(resultado)
+            if ( resultado.status == 404) {
+                res.status(resultado.status).json(resultado.message)
+            }
+            if ( resultado.status == 201) {
+                res.status(resultado.status).json(resultado.data)
+            }
         } catch (error) {
             console.error(error)
             res.status(500).json({ message: 'Erro interno do servidor.' });
@@ -97,7 +115,18 @@ const clienteController = {
         const {clienteId, produtoID} = req.body
         try {
              const resultado = await clientService.UpdateClientFavoritos(clienteId, produtoID)
-                res.status(200).json(resultado);
+             if (resultado.status == 404) {
+                res.status(resultado.status).json(resultado.message)
+             }
+             if ( resultado.status == 409)  {
+                res.status(resultado.status).json(resultado.message)
+             }
+             if ( resultado.status == 400)  {
+                res.status(resultado.status).json(resultado.message)
+             }
+             if ( resultado.status == 201)  {
+                res.status(resultado.status).json(resultado.message)
+             }
         } catch (error) {
             console.error(error)
             res.status(500).json({ message: 'Erro interno do servidor.' });
@@ -108,11 +137,13 @@ const clienteController = {
         const {ClienteId}= req.body
         try {
             const resultado = await clientService.GetClienteFavoritos(ClienteId)
-            console.log(resultado.status)
+            if ( resultado.status == 404) {
+                res.status(resultado.status).json(resultado.message);
+            }
            if (resultado.data) {
                 res.status(resultado.status).json(resultado.data);
             }
-            res.status(resultado.status).json({ message: resultado.message });
+           //res.status(resultado.status).json({ message: resultado.message });
         } catch (error) {
             console.error(error)
             res.status(500).json({ message: 'Erro interno do servidor.' });

@@ -4,7 +4,7 @@ import User from './user.model';
 import Product from './product.model';
 
 export interface IClients extends Document {
-        Clients: ObjectId;
+        userid: ObjectId;
         CPF?: String;
         telefone?: { 
              Number?: String,
@@ -12,7 +12,6 @@ export interface IClients extends Document {
      };
         Location?:[
             {
-            District?: string;
             cep?: string;
             logradouro?: string;
             complemento?: string;
@@ -45,13 +44,13 @@ export interface IClients extends Document {
 
 
 const ClientsSchema = new Schema<IClients>({
-    Clients: { type: Types.ObjectId, ref: User, required: true },
+    userid: { type: Types.ObjectId, ref: User, required: true },
     CPF: { type: String, unique: true, sparse: true  },
-    telefone:[ {
+    telefone: {
          _id: false,
-        Number: {type: String, unique: true, sparse: true},
-        auth: {type: String, default: false },
-     }],
+        Number: {type: String,default: 0, unique: true, sparse: true},
+        auth: {type: String, default: false},
+     },
     Location: [{
              _id: false,
              cep:{ type: String, required: true, default: '' },

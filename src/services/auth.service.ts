@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_TOKEN
 import { IUser } from '../models/user.model';
 import  clientes, { IClients } from '../models/Clientes.model';
+import { Message } from 'twilio/lib/twiml/MessagingResponse';
 
 const AuthService = {
     register: async (body: { name: string; email: string; password: string }) => {
@@ -21,9 +22,26 @@ const AuthService = {
             await user.save();
             const Token = await jwt.sign( {body: email}, secret, { expiresIn: '1d' });
             //console.log(user)
-            const userID = user.id
-            const novoCliente = await clientes.create({Clients: userID});
-            console.log(novoCliente)
+            const novoCliente = await clientes.create({userid: user.id});
+            console.log(novoCliente.errors )
+
+            if( novoCliente.errors ){
+                console.log('An error occurred while creating the client')
+                await user.deleteOne({_id: user.id})
+                    return {
+                        status: 401,
+                        message: 'Server error'
+                    } 
+            }
+
+            if ( !novoCliente ){
+                 console.log('An error occurred while creating the client')
+                await user.deleteOne({_id: user.id})
+                    return {
+                        status: 401,
+                        message: 'Server error'
+                    } 
+            }; 
             // Gera um token JWT para o usuário registrado
             return {
                 status: 201,
@@ -31,6 +49,12 @@ const AuthService = {
             }; 
             
         } catch (error) {
+            const {  email } = body;
+            const userToDelete = await User.findOne({ email: email });
+            if (userToDelete) {
+                    await userToDelete.deleteOne({ email: email });
+                    console.log("Usuário órfão deletado com sucesso.");
+             }
             console.error('Error registering user:', error); 
             // Retorna um erro genérico em caso de falha
             return {
