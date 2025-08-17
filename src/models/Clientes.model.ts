@@ -52,7 +52,6 @@ const ClientsSchema = new Schema<IClients>({
         auth: {type: String, default: false},
      },
     Location: [{
-             _id: false,
              cep:{ type: String, required: true, default: '' },
              logradouro:{ type: String, required: true, default: '' },
              complemento:{ type: String, required: true, default: '' },
