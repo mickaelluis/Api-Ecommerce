@@ -20,8 +20,9 @@ const AuthService = {
       const { name, email, password } = body;
       const user = new User({ name, email, password });
       await user.save();
-      const Token = await jwt.sign({ body: email }, secret, {
-        expiresIn: "1d",
+      const tokenPayload = { id: user.id, email: user.email, role: user.role };
+      const Token = await jwt.sign(tokenPayload, secret, {
+        expiresIn: '1d'
       });
       //console.log(user)
       const novoCliente = await clientes.create({ userid: user.id });
@@ -68,10 +69,12 @@ const AuthService = {
   login: async (body: { email: string; password: string }) => {
     try {
       const user = (await User.findOne({ email: body.email })) as IUser | null;
-      const token = await jwt.sign({ email: body.email }, secret, {
-        expiresIn: "1d",
-      });
+
       if (user && (await user.comparePassword(body.password))) {
+        const tokenPayload = { id: user.id, email: user.email, role: user.role };
+        const token = await jwt.sign(tokenPayload, secret, { 
+          expiresIn: '1d' 
+        });
         //valida se a senha e o mail sao validos
         return {
           // devolve o token no padrão Auth Type

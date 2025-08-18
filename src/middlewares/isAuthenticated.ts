@@ -3,6 +3,10 @@ import User from '../models/user.model';
 import jwt from 'jsonwebtoken';
 require('dotenv').config();
 
+interface tokenPayload {
+    id: string;
+    role: string;
+}
 
 export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
@@ -16,8 +20,9 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 
     try {
         const decoded = jwt.verify(token, secret); // verifica se o token coincide com o JWT TOKEN
+        const { id, role } = decoded as tokenPayload
         // Você pode adicionar o usuário decodificado ao req se quiser
-        //(req as any).user = decoded;
+        (req as any).user = {id, role};
         next(); // isso da continuidade na rota 
     } catch (error) {
       console.error('Error registering user:', error) // caso acontece algum erro sera exibido no console pra ser tratado
