@@ -53,7 +53,10 @@ const ProductService = {
         const newProduct = new Product(processedData);
         return await newProduct.save();
     },
-    updateProduct: async (id: string, productData: Partial<IProduct>): Promise<IProduct | null> => { // Atualiza um produto pelo id
+    updateProduct: async (
+        id: string, 
+        productData: Partial<IProduct>
+    ): Promise<IProduct | null> => { // Atualiza um produto pelo id
         const processedData = processProductPrices(productData)
         return await Product.findByIdAndUpdate(id, processedData, { new: true });
     },
