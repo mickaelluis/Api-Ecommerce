@@ -2,18 +2,16 @@ import { strict } from 'assert';
 import mongoose, { Document, model, ObjectId, Schema, Types } from 'mongoose';
 import User from './user.model';
 import Product from './product.model';
-import { number } from 'zod';
 
 export interface IClients extends Document {
-        Clients: ObjectId;
+        userid: ObjectId;
         CPF?: String;
         telefone?: { 
-             Number: String,
-             auth: String,
+             Number?: String,
+             auth?: String,
      };
         Location?:[
             {
-            District?: string;
             cep?: string;
             logradouro?: string;
             complemento?: string;
@@ -25,9 +23,7 @@ export interface IClients extends Document {
             }
         ];
         Favorites?: [{     
-                Productid: ObjectId ,
-                name:  String ,
-                description: String,
+                Productid: ObjectId,
         }]
         Shopping?:[{
             idProducts?: string;
@@ -48,14 +44,14 @@ export interface IClients extends Document {
 
 
 const ClientsSchema = new Schema<IClients>({
-    Clients: { type: Types.ObjectId, ref: User, required: true },
-    CPF: { type: String, default: 0 },
-    telefone: { 
-        Number: {type: String, required: true, default: 0, unique: true},
-        auth: {type: String, required: true, default: 'false', unique: true},
+    userid: { type: Types.ObjectId, ref: User, required: true },
+    CPF: { type: String, unique: true, sparse: true  },
+    telefone: {
+         _id: false,
+        Number: {type: String,default: 0, unique: true, sparse: true},
+        auth: {type: String, default: false},
      },
     Location: [{
-             _id: false,
              cep:{ type: String, required: true, default: '' },
              logradouro:{ type: String, required: true, default: '' },
              complemento:{ type: String, required: true, default: '' },
@@ -68,8 +64,6 @@ const ClientsSchema = new Schema<IClients>({
     Favorites: [{
              _id: false,
              Productid:{ type: Types.ObjectId, ref: Product, required: true, default: null },
-             name:{ type: String, required: true, default: '' },
-             description:{ type: String, required: true, default: '' },
     }],
     Shopping:[{
         idProducts: { type: Types.ObjectId, ref: Product ,required: true, default: {} },
@@ -88,4 +82,4 @@ const ClientsSchema = new Schema<IClients>({
     }]
 })
 
-export default mongoose.model('Clients', ClientsSchema) 
+export default mongoose.model('clients', ClientsSchema) 
