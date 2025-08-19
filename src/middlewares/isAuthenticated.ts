@@ -15,9 +15,7 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
         res.status(401).json({ message: 'Token não fornecido.' });
         return
     }
-
     const token = authHeader.split(' ')[1]; //pega o valor do cabeçalho Authorization, separa a string pelo espaço e extrai apenas o token JWT.
-
     try {
         const decoded = jwt.verify(token, secret); // verifica se o token coincide com o JWT TOKEN
         const { id, role } = decoded as tokenPayload

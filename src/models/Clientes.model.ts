@@ -48,7 +48,7 @@ const ClientsSchema = new Schema<IClients>({
     CPF: { type: String, unique: true, sparse: true  },
     telefone: {
          _id: false,
-        Number: {type: String,default: 0, unique: true, sparse: true},
+        Number: {type: String, unique: true, sparse: true},
         auth: {type: String, default: false},
      },
     Location: [{

@@ -2,6 +2,21 @@ import clientService from "../services/clientes.service";
 import { Request, Response } from "express";
 // Controlador para gerenciar clientes
 const clienteController = {
+  getClientes: async(req: Request, res: Response) => {
+     try {
+       const resultado = await clientService.getCliente()
+      if(resultado.status == 400) {
+        res.status(resultado.status).json(resultado.message);
+      }
+      if(resultado.status == 201){
+        res.status(resultado.status).json(resultado.data);
+      }
+     } catch (error) {
+      // Se ocorrer um erro, retorna uma resposta de erro genérica
+      console.error("Erro ao deletar cliente:", error);
+      res.status(500).json({ message: "Erro ao deletar cliente." });
+     }
+  },
   // Função deletar os dados de um cliente
   deletarCliente: async (req: Request, res: Response) => {
     try {

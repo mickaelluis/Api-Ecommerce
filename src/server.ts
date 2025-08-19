@@ -33,7 +33,7 @@ const startServer = async () => {
 
     // importe rotas APÓS a conexão com o DB
     const routerAuth = (await import("./auth/Auth.routes")).default;
-    const productRoutes = (await import("./produtos/products.routes")).default;
+    const productRoutes = (await import("./routes/products.routes")).default;
     const clientesRoutes = (await import("./routes/clientes.routes")).default;
     const cartRoutes = (await import("./carrinho/cart.routes")).default;
     const categoryRoutes = (await import("./categorias/categories.routes")).default;

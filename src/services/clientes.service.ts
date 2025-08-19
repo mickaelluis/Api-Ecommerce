@@ -5,26 +5,44 @@ import { cpf } from "cpf-cnpj-validator";
 import { parsePhoneNumberFromString, CountryCode } from "libphonenumber-js";
 import Product from "../models/product.model";
 import { runTransaction } from "../database/database";
+import { boolean } from "zod";
 const axios = require("axios");
 
 // Serviço para manipulação de clientes
 // Este serviço contém funções para criar, atualizar, deletar e buscar clientes
 const clientService = {
+   // função para buscar os cliente
+  getCliente: async () => {
+    try {
+      const clientes = await User.find({ role: "Clients" });
+      if(!clientes){
+        return {status: 400, message: "Você nao tem nenhum cliente!!"}
+      }
+      return{ status: 201, data: clientes }
+    } catch (error) {
+      // Se ocorrer um erro durante a transação, imprime o erro no console
+      console.error("Erro ao apagar cliente:", error);
+      // Lança um erro para indicar que a transação falhou
+      // Isso pode ser capturado pelo chamador para lidar com o erro de forma adequada
+      throw new Error("Falha ao atualizar o cliente.");
+    }
+  },
+
+
   // função para deletar um cliente
   deletarCliente: async (ClienteId: ObjectId, userId: ObjectId) => {
-    const session = clientes.startSession(); // Inicia uma sessão para a transação
     try {
       // Verifica se o cliente existe
       // Isso é importante para garantir que o cliente associado ao usuário também seja removido
-      const cliente = clientes.findById(ClienteId);
+      const cliente = await clientes.findById(ClienteId);
       if (!cliente) {
         return { status: 404, message: "cliente não encontrado!!" };
       }
       // Verifica se o usuário existe
       // Isso é importante para garantir que o usuário associado ao cliente também seja removido
-      const user = User.findById(userId);
+      const user = await User.findById(userId);
       if (!user) {
-        return { status: 404, message: "cliente não encontrado!!" };
+        return { status: 404, message: "Usuario não encontrado!!" };
       }
       // Inicia a transação
       // A transação garante que ambas as operações (deletar cliente e deletar usuário)
@@ -55,7 +73,7 @@ const clientService = {
         }
         // Se ambos os deletes forem bem-sucedidos, retorna o cliente deletado
         // Isso indica que a transação foi concluída com sucesso
-        return deleteClinete;
+        return { message: "Cliente e usuário associado deletados com sucesso."};
       });
       // Se o resultado for falso, significa que a transação falhou
       // Isso pode acontecer se algum dos deletes falhar ou se um erro for lançado
@@ -68,7 +86,7 @@ const clientService = {
       }
       // Se a transação foi bem-sucedida, retorna uma mensagem de sucesso
       // Isso indica que o cliente e o usuário foram removidos com sucesso
-      return { status: 200, message: "Conta apagada com sucesso!!" };
+       return{ status: 200, message: (await resultado).message}
     } catch (error) {
       // Se ocorrer um erro durante a transação, imprime o erro no console
       console.error("Erro ao apagar cliente:", error);

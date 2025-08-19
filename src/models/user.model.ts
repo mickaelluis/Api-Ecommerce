@@ -3,25 +3,29 @@ import { promises } from 'dns';
 import mongoose from 'mongoose'
 import { Document } from 'mongoose';
 
-//Define como sera salvo os dados do usuario no MongoDB '
-let userSchema = new mongoose.Schema({
-    name: { type: String, required: true} ,
-    email: { type: String, required: true, unique:true },
-    password: { type: String, required: true,   },
-    role: { type: String, default: 'Clients' }, // 'admin' or 'user'
-    created_at: { type : Date, default: Date.now },
-    updated_at: { type : Date, default: Date.now },}) 
-
-
 // Interface para o usuário, que estende o documento do Mongoose
 // Isso define a estrutura do documento do usuário no MongoDB e adiciona métodos para comparar senhas 
 export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
+    sexo: string;
     role: string;
     comparePassword(password: string): Promise<boolean>;
 }
+
+
+//Define como sera salvo os dados do usuario no MongoDB '
+let userSchema = new mongoose.Schema({
+    name: { type: String, required: true} ,
+    email: { type: String, required: true, unique:true },
+    password: { type: String, required: true,   },
+    sexo: {type: String, required: true},
+    role: { type: String, default: 'Clients' }, // 'admin' or 'Clients'
+    created_at: { type : Date, default: Date.now },
+    updated_at: { type : Date, default: Date.now },}) 
+
+
 
 // pré-salvamento para fazer o hash da senha antes de salvar no banco de dados
 userSchema.pre('save', async function(next) {

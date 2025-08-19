@@ -2,6 +2,7 @@ import express from 'express';
 var router = express.Router();
 import clienteController  from '../controllers/Clientes.controller';
 import { isAuthenticated,VerificationRoles } from '../middlewares/isAuthenticated'
+router.get('/',isAuthenticated, VerificationRoles, clienteController.getClientes);
 router.delete('/ApagarCliente', isAuthenticated, clienteController.deletarCliente);// Rota para deletar um cliente
 router.post('/AdicionarCPF', isAuthenticated, clienteController.adiconandoCPF ); // Rota para adicionar CPF a um cliente
 router.delete('/DeletarCPF', isAuthenticated, clienteController.deletarCPF );// Rota para deletar o CPF de um cliente
