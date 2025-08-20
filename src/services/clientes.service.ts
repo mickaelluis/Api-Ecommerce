@@ -15,6 +15,7 @@ const clientService = {
     try {
       const user = await User.find({ role: "Clients" }).populate({
         path: "clienteId",
+        select: "-created_at -updated_at",
         populate: {
           path: "Favorites.Productid",
           select: "-_id  -createdAt -updatedAt", 
