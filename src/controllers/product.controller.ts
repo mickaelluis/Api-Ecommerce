@@ -30,11 +30,11 @@ export const ProductController = {
             }
         } catch (error: any) {
             if (error.name === 'CastError') {
-                res.status(400).json({ message: 'ID de produto inválido.' }); 
+                res.status(400).json({ message: 'ID de produto inválido.' });
                 return;
             } else {
                 console.error("Erro ao buscar produto por ID:", error);
-                res.status(500).json({ message: 'Ocorreu um erro interno ao buscar o produto.' }); 
+                res.status(500).json({ message: 'Ocorreu um erro interno ao buscar o produto.' });
                 return;
             }
         }
@@ -44,12 +44,13 @@ export const ProductController = {
     createProduct: async (req: Request, res: Response): Promise<void> => {
         try {
             const newProduct = await ProductService.createProduct(req.body); // Usa o corpo da requisição para criar o produto
-            res.status(201).json(newProduct); // Produto criado com sucesso (201 Created)
+            res.status(201).json(newProduct); // Produto criado com successo (201 Created)
             return;
         } catch (error: any) {
             // Dados inválidos (ex: campos obrigatórios ausentes)
             if (error.name === 'ValidationError') {
                 res.status(400).json({ message: 'Dados inválidos para criação do produto.' });
+                console.error(error)
                 return;
             } else {
                 console.error("Erro ao criar produto:", error);
@@ -79,7 +80,7 @@ export const ProductController = {
                 return;
             } else {
                 console.error("Erro ao atualizar produto:", error);
-                res.status(500).json({ message: 'Ocorreu um erro interno ao atualizar o produto.' }); 
+                res.status(500).json({ message: 'Ocorreu um erro interno ao atualizar o produto.' });
                 return;
             }
         }
@@ -90,7 +91,7 @@ export const ProductController = {
         try {
             const deleteProduct = await ProductService.deleteProduct(req.params.id); // Envia ID para deletar
             if (deleteProduct) {
-                res.status(200).json({ message: 'Produlo deletado com sucesso.' }); // Confirma a exclusão
+                res.status(200).json({ message: 'Produto deletado com successo.' }); // Confirma a exclusão
                 return;
             } else {
                 res.status(404).json({ message: 'Produto não encontrado para ser deletado.' }); // Produto não existe
@@ -98,11 +99,11 @@ export const ProductController = {
             }
         } catch (error: any) {
             if (error.name === 'CastError') {
-                res.status(400).json({ message: 'ID de produto inválido.' }); 
+                res.status(400).json({ message: 'ID de produto inválido.' });
                 return;
             } else {
                 console.error("Erro ao deletar produto:", error);
-                res.status(500).json({ message: 'Ocorreu um erro interno ao deletar o produto.' }); 
+                res.status(500).json({ message: 'Ocorreu um erro interno ao deletar o produto.' });
                 return;
             }
         }
@@ -111,12 +112,30 @@ export const ProductController = {
     // Pesquisa produtos com base em filtros opcionais (name, category, minPrice, maxPrice)
     searchProducts: async (req: Request, res: Response): Promise<void> => {
         try {
-            const queryParams = {
+            const allowedParams = ['name', 'category', 'minPrice', 'maxPrice']; // Define Parâmetros da query permitidos 
+            const receivedParams = Object.keys(req.query); // Obtêm nome dos parâmetros da query
+            const invalidParams = receivedParams.filter(param => !allowedParams.includes(param)) // Verifica se existe parâmetros não permitidos
+
+            if (invalidParams.length > 0) { // Se houver parâmetros inválidos, retorna erro 400
+                console.error("Parâmetros inválidos na busca:", invalidParams);
+                res.status(400).json({ message: "Parâmetros de busca inválidos detectados na URL." });
+                return;
+            }
+
+            const queryParams: { [key: string]: any } = {  // Monta o objeto queryParams com os valores permitidos
                 name: req.query.name as string | undefined,
                 category: req.query.category as string | undefined,
                 minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
                 maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
             };
+
+            // Remove valores undefined
+            Object.keys(queryParams).forEach(key => {
+                if (queryParams[key] === undefined) {
+                    delete queryParams[key];
+                }
+            });
+
             const products = await ProductService.searchProducts(queryParams); // Pesquisa no banco com os filtros
             res.status(200).json(products); // Retorna os resultados encontrados
             return;
@@ -125,5 +144,6 @@ export const ProductController = {
             res.status(500).json({ message: 'Ocorreu um erro interno ao pesquisar produtos.' });
             return;
         }
-    }
+    },
+
 };

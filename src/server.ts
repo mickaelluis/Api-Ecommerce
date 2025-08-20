@@ -1,20 +1,17 @@
 // src/server.ts
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import dotenv from 'dotenv';
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import dotenv from "dotenv";
+import { connectToDb } from "./database/database";
 // Load env vars
-dotenv.config({ path: './.env'});
+dotenv.config({ path: "./.env" });
 
 // App init
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Import routes
-import router from './auth/Auth.routes';
-import productRoutes from './produtos/Produtos'
 /* Middleware
 declare global {
   namespace Express {
@@ -27,22 +24,39 @@ declare global {
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
-app.use(morgan('dev'));
-
-// Routes (a serem importadas)
-app.use('/users', router);
-app.use('/', router);
-app.use('/produtos', productRoutes);
+app.use(morgan("dev"));
 
 // Mongo Connection
-mongoose.connect(process.env.MONGO_URI || '', {
-})
-  .then(() => {
-    console.log('MongoDB conectado.');
+const startServer = async () => {
+  try {
+    await connectToDb();
+
+    // importe rotas APÓS a conexão com o DB
+    const routerAuth = (await import("./auth/Auth.routes")).default;
+    const productRoutes = (await import("./routes/products.routes")).default;
+    const clientesRoutes = (await import("./routes/clientes.routes")).default;
+    const cartRoutes = (await import("./carrinho/cart.routes")).default;
+    const categoryRoutes = (await import("./categorias/categories.routes")).default;
+
+    app.use("/users", routerAuth);
+    app.use("/", routerAuth);
+    app.use("/produtos", productRoutes);
+    app.use("/carrinho", cartRoutes)
+    app.use("/categorias", categoryRoutes)
+    app.use("/clientes", clientesRoutes);
+
     app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
-  })
-  .catch((err) => {
-    console.error('Erro ao conectar no MongoDB:', err);
+  } catch (err) {
+    console.error("Erro ao iniciar aplicação:", err);
     process.exit(1);
-  }); 
-  
+  }
+};
+
+startServer();
+
+// exemplo curto de graceful shutdown
+process.on("SIGINT", async () => {
+  console.log("Fechando servidor...");
+  await (await import("mongoose")).disconnect();
+  process.exit(0);
+});
