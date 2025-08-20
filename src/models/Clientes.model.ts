@@ -4,7 +4,6 @@ import User from './user.model';
 import Product from './product.model';
 
 export interface IClients extends Document {
-        userid: ObjectId;
         CPF?: String;
         telefone?: { 
              Number?: String,
@@ -44,7 +43,6 @@ export interface IClients extends Document {
 
 
 const ClientsSchema = new Schema<IClients>({
-    userid: { type: Types.ObjectId, ref: User, required: true },
     CPF: { type: String, unique: true, sparse: true  },
     telefone: {
          _id: false,

@@ -5,20 +5,26 @@ import { cpf } from "cpf-cnpj-validator";
 import { parsePhoneNumberFromString, CountryCode } from "libphonenumber-js";
 import Product from "../models/product.model";
 import { runTransaction } from "../database/database";
-import { boolean } from "zod";
 const axios = require("axios");
 
 // Serviço para manipulação de clientes
 // Este serviço contém funções para criar, atualizar, deletar e buscar clientes
 const clientService = {
-   // função para buscar os cliente
+  // função para buscar os cliente
   getCliente: async () => {
     try {
-      const clientes = await User.find({ role: "Clients" });
-      if(!clientes){
-        return {status: 400, message: "Você nao tem nenhum cliente!!"}
+      const user = await User.find({ role: "Clients" }).populate({
+        path: "clienteId",
+        populate: {
+          path: "Favorites.Productid",
+          select: "-_id  -createdAt -updatedAt", 
+          populate: { path: "category", select: " -_id -createdAt -updatedAt" },
+        },
+      });
+      if (!user) {
+        return { status: 400, message: "Você nao tem nenhum cliente!!" };
       }
-      return{ status: 201, data: clientes }
+      return { status: 201, data: user };
     } catch (error) {
       // Se ocorrer um erro durante a transação, imprime o erro no console
       console.error("Erro ao apagar cliente:", error);
@@ -27,7 +33,6 @@ const clientService = {
       throw new Error("Falha ao atualizar o cliente.");
     }
   },
-
 
   // função para deletar um cliente
   deletarCliente: async (ClienteId: ObjectId, userId: ObjectId) => {
@@ -54,7 +59,7 @@ const clientService = {
           { _id: userId },
           { session }
         );
-        // Se o usuário não for encontrado, lança um erro para abortar a transação  
+        // Se o usuário não for encontrado, lança um erro para abortar a transação
         // Isso garante que o usuário seja removido antes de tentar remover o cliente
         if (!deleteUser) {
           // Lançar um erro aqui fará a transação ser abortada (rollback)
@@ -73,7 +78,9 @@ const clientService = {
         }
         // Se ambos os deletes forem bem-sucedidos, retorna o cliente deletado
         // Isso indica que a transação foi concluída com sucesso
-        return { message: "Cliente e usuário associado deletados com sucesso."};
+        return {
+          message: "Cliente e usuário associado deletados com sucesso.",
+        };
       });
       // Se o resultado for falso, significa que a transação falhou
       // Isso pode acontecer se algum dos deletes falhar ou se um erro for lançado
@@ -86,7 +93,7 @@ const clientService = {
       }
       // Se a transação foi bem-sucedida, retorna uma mensagem de sucesso
       // Isso indica que o cliente e o usuário foram removidos com sucesso
-       return{ status: 200, message: (await resultado).message}
+      return { status: 200, message: (await resultado).message };
     } catch (error) {
       // Se ocorrer um erro durante a transação, imprime o erro no console
       console.error("Erro ao apagar cliente:", error);
@@ -143,7 +150,7 @@ const clientService = {
   // Ela recebe o ID do cliente e remove o campo CPF do documento
   deleteClienteCpf: async (clienteId: ObjectId) => {
     const session = clientes.startSession();
-    try { 
+    try {
       // Verifica se o cliente existe
       const cliente = clientes.findById(clienteId);
       if (!cliente) {
@@ -224,7 +231,7 @@ const clientService = {
   },
 
   // A função agora recebe o ID do cliente, o novo número e o país
-  // Ela atualiza o número de telefone do cliente no banco de dados 
+  // Ela atualiza o número de telefone do cliente no banco de dados
   atualizarCienteNumber: async (
     clienteId: ObjectId,
     numberNew: string,
@@ -242,7 +249,7 @@ const clientService = {
       if (!telefone || !telefone.isValid()) {
         return { status: 400, message: "Numero de telefone invalido!!!" };
       }
-      // Formata o número para o padrão E.164 
+      // Formata o número para o padrão E.164
       const numeroEmFormatoInternacional = telefone.format("E.164");
       // 1. Critério de busca: Encontrar o cliente pelo seu _id
       const filtro = { _id: clienteId };
@@ -271,14 +278,14 @@ const clientService = {
       // Se a atualização for bem-sucedida, retorna o cliente atualizado
       return { status: 201, data: numeroAtualizado };
     } catch (error) {
-      // se ocorrer um erro durante a atualização, imprime o erro no console 
+      // se ocorrer um erro durante a atualização, imprime o erro no console
       console.error("Erro ao adicionar NUMERO:", error);
       throw new Error("Falha ao atualizar o cliente.");
     }
   },
 
   // A função deleta o número de telefone do cliente
-  // Ela recebe o ID do cliente e remove o campo telefone do documento  
+  // Ela recebe o ID do cliente e remove o campo telefone do documento
   deliteCilenteNumber: async (clienteId: ObjectId) => {
     try {
       // Verifica se o cliente existe
@@ -299,7 +306,7 @@ const clientService = {
       // Usamos o método updateOne para atualizar o cliente com o filtro e os dados de atualização.
       // O método updateOne retorna um objeto que contém informações sobre a atualização.
       await clientes.updateOne(filtro, deleteNumber);
-      // Se a atualização for bem-sucedida, retorna uma mensagem de sucesso 
+      // Se a atualização for bem-sucedida, retorna uma mensagem de sucesso
       return { status: 201, message: "Numero apagado" };
     } catch (error) {
       // Se ocorrer um erro durante a atualização, imprime o erro no console
@@ -342,7 +349,7 @@ const clientService = {
 
       // Validação da localização
       if (
-        resposta.localidade === localidade &&// ViaCEP usa 'localidade' no lugar de 'cidade'
+        resposta.localidade === localidade && // ViaCEP usa 'localidade' no lugar de 'cidade'
         resposta.estado === estado && // ViaCEP usa 'uf' no lugar de 'estado'
         resposta.regiao === regiao // ViaCEP não retorna 'regiao', pode precisar ajustar
       ) {
@@ -457,10 +464,10 @@ const clientService = {
         new: true,
       });
       // Se a atualização falhar, retorna uma mensagem de erro
-      if (!resultado){
+      if (!resultado) {
         return { status: 404, message: "Localização não encontrada!" };
       }
-      // Se a atualização for bem-sucedida, retorna o cliente atualizado  
+      // Se a atualização for bem-sucedida, retorna o cliente atualizado
       return { status: 201, data: resultado };
     } catch (error) {
       // Se ocorrer um erro durante a atualização, imprime o erro no console
@@ -503,7 +510,7 @@ const clientService = {
       return { status: 201, message: "Localizaçao apagada com sucesso" };
     } catch (error) {
       // Se ocorrer um erro durante a remoção, imprime o erro no console
-      console.log("Erro ao deletar localizações:", error);  
+      console.log("Erro ao deletar localizações:", error);
       throw new Error("Falha ao atualizar o cliente.");
     }
   },
@@ -560,7 +567,7 @@ const clientService = {
     const cliente = await clientes
       .findById(ClienteId)
       .populate("Favorites.Productid");
-      // Se o cliente não for encontrado, retorna uma mensagem de erro
+    // Se o cliente não for encontrado, retorna uma mensagem de erro
     if (!cliente) {
       return { status: 404, message: "Cliente não encontrado!" };
     }
@@ -582,7 +589,7 @@ const clientService = {
     if (!cliente) {
       return { status: 404, message: "Cliente não encontrado!" };
     }
-    // Verifica se o produto existe 
+    // Verifica se o produto existe
     const filtro = { _id: ClienteId };
     // Operação de remoção usando o operador $pull para remover o produto específico do array Favorites
     const favoritoDeletado = {

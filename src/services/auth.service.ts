@@ -2,7 +2,7 @@ import User, { IUser } from "../models/user.model";
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const secret = process.env.JWT_TOKEN;
-import clientes, { IClients } from "../models/Clientes.model";
+import Clientes, { IClients } from "../models/Clientes.model";
 import { runTransaction } from "../database/database";
 
 const AuthService = {
@@ -18,16 +18,17 @@ const AuthService = {
       };
       const resultado = runTransaction(async (session) =>{
         const { name, email, password, sexo} = body;
-        const user = new User({ name, email, password, sexo});
-        await user.save({ session });
+        const cliente = new Clientes()
+        await cliente.save({ session })
+        if(!cliente) {
+           throw new Error("Erro ao criar o usuario");
+        }
+        const user = new User({name, email, password, sexo, clienteId: cliente._id});
+        await user.save({session})
         if(!user) {
            throw new Error("Erro ao criar o usuario");
         }
-       const clinete = await clientes.create([{ userid: user.id }], { session })
-        if(!clinete) {
-           throw new Error("Erro ao criar o usuario");
-        }
-        const tokenPayload = { id: user._id, email: user.email, role: user.role };
+        const tokenPayload = { id: user.id, email: user.email, role: user.role };
         const Token = await jwt.sign(tokenPayload, secret, {
         expiresIn: '1d'
         });
