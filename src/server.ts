@@ -37,13 +37,15 @@ const startServer = async () => {
     const clientesRoutes = (await import("./routes/clientes.routes")).default;
     const cartRoutes = (await import("./carrinho/cart.routes")).default;
     const categoryRoutes = (await import("./categorias/categories.routes")).default;
+    const verifRoutes = (await import("./routes/verificacao.routes")).default
 
     app.use("/users", routerAuth);
     app.use("/", routerAuth);
     app.use("/produtos", productRoutes);
-    app.use("/carrinho", cartRoutes)
-    app.use("/categorias", categoryRoutes)
+    app.use("/carrinho", cartRoutes);
+    app.use("/categorias", categoryRoutes);
     app.use("/clientes", clientesRoutes);
+    app.use("/vericacao", verifRoutes);
 
     app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
   } catch (err) {
