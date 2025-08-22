@@ -11,23 +11,61 @@ const axios = require("axios");
 // Este serviço contém funções para criar, atualizar, deletar e buscar clientes
 const clientService = {
   // função para buscar os cliente
-  getCliente: async () => {
+  getCliente: async (userId: string ) => {
     try {
-      const user = await User.find({ role: "Clients" }).populate({
-        path: "clienteId",
-        populate: {
-          path: "Favorites.Productid",
-          select: "-_id  -createdAt -updatedAt", 
-          populate: { path: "category", select: " -_id -createdAt -updatedAt" },
+      if(userId == "") {
+        const user = await User.find({ role: "Clients" }).populate([
+        {
+          path: "clienteId",
+          select: " -password",
+          populate: {
+            path: "Favorites.Productid",
+            select: "-_id  -createdAt -updatedAt",
+            populate: {
+              path: "category items.productId",
+              select: " -_id -createdAt -updatedAt",
+            },
+          },
         },
-      });
+        { path: "cartId",
+          populate: {
+            path: "items.productId",
+            select: "-colorVariants  -createdAt -updatedAt -__v -category -description"
+          }
+         },
+      ]);
+      if (!user) {
+        return { status: 400, message: "Você nao tem nenhum cliente!!" };
+      }
+      return { status: 201, data: user };
+      }
+      const user = await User.findById(userId).populate([
+        {
+          path: "clienteId",
+          select: "-password",
+          populate: {
+            path: "Favorites.Productid",
+            select: "-_id  -createdAt -updatedAt",
+            populate: {
+              path: "category items.productId",
+              select: " -_id -createdAt -updatedAt",
+            },
+          },
+        },
+        { path: "cartId",
+          populate: {
+            path: "items.productId",
+            select: "-colorVariants  -createdAt -updatedAt -__v -category -description"
+          }
+         },
+      ]);
       if (!user) {
         return { status: 400, message: "Você nao tem nenhum cliente!!" };
       }
       return { status: 201, data: user };
     } catch (error) {
       // Se ocorrer um erro durante a transação, imprime o erro no console
-      console.error("Erro ao apagar cliente:", error);
+      console.error("Erro ao buscar cliente:", error);
       // Lança um erro para indicar que a transação falhou
       // Isso pode ser capturado pelo chamador para lidar com o erro de forma adequada
       throw new Error("Falha ao atualizar o cliente.");

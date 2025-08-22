@@ -3,6 +3,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const secret = process.env.JWT_TOKEN;
 import Clientes, { IClients } from "../models/Clientes.model";
+import Cart, {ICart} from "../models/cart.model"
 import { runTransaction } from "../database/database";
 
 const AuthService = {
@@ -23,7 +24,12 @@ const AuthService = {
         if(!cliente) {
            throw new Error("Erro ao criar o usuario");
         }
-        const user = new User({name, email, password, sexo, clienteId: cliente._id});
+      const cart = new Cart()
+        await cart.save({session})
+      if(!cart){
+         throw new Error("Erro ao criar o usuario");
+      }
+        const user = new User({name, email, password, sexo, clienteId: cliente._id, cartId: cart.id});
         await user.save({session})
         if(!user) {
            throw new Error("Erro ao criar o usuario");

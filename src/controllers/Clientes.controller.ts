@@ -4,7 +4,9 @@ import { Request, Response } from "express";
 const clienteController = {
   getClientes: async(req: Request, res: Response) => {
      try {
-       const resultado = await clientService.getCliente()
+      const userId =  req.query.id ;
+      const finalUserId = userId as string;
+       const resultado = await clientService.getCliente(finalUserId)
       if(resultado.status == 400) {
         res.status(resultado.status).json(resultado.message);
       }
@@ -13,8 +15,8 @@ const clienteController = {
       }
      } catch (error) {
       // Se ocorrer um erro, retorna uma resposta de erro genérica
-      console.error("Erro ao deletar cliente:", error);
-      res.status(500).json({ message: "Erro ao deletar cliente." });
+      console.error("Erro ao Buscar cliente:", error);
+      res.status(500).json({ message: "Erro ao buscar clientes." });
      }
   },
   // Função deletar os dados de um cliente
