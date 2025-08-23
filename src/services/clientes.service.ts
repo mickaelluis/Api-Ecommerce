@@ -39,10 +39,9 @@ const clientService = {
       }
       return { status: 201, data: user };
       }
-      const user = await User.findById(userId).populate([
+      const user = await User.findById(userId) .select('-password').populate([
         {
           path: "clienteId",
-          select: "-password",
           populate: {
             path: "Favorites.Productid",
             select: "-_id  -createdAt -updatedAt",
