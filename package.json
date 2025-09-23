@@ -8,13 +8,15 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --ext .ts",
     "dev": "nodemon -e ts,json src/server.ts",
-    "start": "ts-node src/server.ts"
+    "start": "ts-node src/server.ts",
+    "test:payment": "ts-node src/services/payment.service.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@mercadopago/sdk-js": "^0.0.3",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
@@ -25,6 +27,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "libphonenumber-js": "^1.12.10",
+    "mercadopago": "^2.8.0",
     "mongoose": "^8.17.1",
     "morgan": "^1.10.1",
     "node-fetch": "^3.3.2",

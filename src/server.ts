@@ -35,9 +35,10 @@ const startServer = async () => {
     const routerAuth = (await import("./auth/Auth.routes")).default;
     const productRoutes = (await import("./routes/products.routes")).default;
     const clientesRoutes = (await import("./routes/clientes.routes")).default;
-    const cartRoutes = (await import("./carrinho/cart.routes")).default;
-    const categoryRoutes = (await import("./categorias/categories.routes")).default;
-    const verifRoutes = (await import("./routes/verificacao.routes")).default
+    const cartRoutes = (await import("./routes/cart.routes")).default;
+    const categoryRoutes = (await import("./routes/categories.routes")).default;
+    const verifRoutes = (await import("./routes/verificacao.routes")).default;
+    const payment = (await import("./routes/Payment.routes")).default
 
     app.use("/users", routerAuth);
     app.use("/", routerAuth);
@@ -46,10 +47,11 @@ const startServer = async () => {
     app.use("/categorias", categoryRoutes);
     app.use("/clientes", clientesRoutes);
     app.use("/vericacao", verifRoutes);
+    app.use("/Checkout", payment);
 
     app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
   } catch (err) {
-    console.error("Erro ao iniciar aplicação:", err);
+    console.error("Erro ao iniciar aplicaçã0:", err);
     process.exit(1);
   }
 };
